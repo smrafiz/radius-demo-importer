@@ -1,0 +1,16 @@
+{
+  "name": "rt/demo-importer",
+  "description": "Radius Demo Importer",
+  "authors": [
+    {
+      "name": "S.M. Rafiz",
+      "email": "s.m.rafiz@gmail.com"
+    }
+  ],
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "RT\\DemoImporter\\": "app/"
+    }
+  }
+}
