@@ -31,12 +31,10 @@ if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
 /**
  * Demo Importer Instance.
  *
- * @return object|void|null
+ * @return object
  */
 function radiusDemoImporter() {
-	if ( class_exists( RT\DemoImporter\RadiusDemoImporter::class ) ) {
-		return RT\DemoImporter\RadiusDemoImporter::instance();
-	}
+	return RT\DemoImporter\RadiusDemoImporter::instance();
 }
 
 /**
