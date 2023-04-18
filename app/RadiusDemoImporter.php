@@ -7,9 +7,11 @@
 
 namespace RT\DemoImporter;
 
-use RT\DemoImporter\Helpers\Fns;
-use RT\DemoImporter\Helpers\Setup;
 use RT\DemoImporter\Traits\SingletonTrait;
+use RT\DemoImporter\Helpers\{
+	Fns,
+	Setup
+};
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -86,7 +88,7 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function getDemoConfig() {
-		$this->config = apply_filters( 'radius_demo_importer_config', $this->config );
+		$this->config = apply_filters( 'rtdi/importer/config', $this->config );
 	}
 
 	/**
@@ -143,9 +145,9 @@ final class RadiusDemoImporter {
 
 		$services[] = Controllers\Ajax::class;
 		$services[] = Controllers\Importer::class;
-		// $services[] = Controllers\ScriptsController::class;
-		// $services[] = Controllers\Hooks\ActionHooks::class;
-		// $services[] = Controllers\Hooks\FilterHooks::class;
+		$services[] = Controllers\Scripts::class;
+		$services[] = Controllers\Hooks\ActionHooks::class;
+		$services[] = Controllers\Hooks\FilterHooks::class;
 
 		return \apply_filters( 'rtdi/service/classes', $services );
 	}

@@ -212,7 +212,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php
 								foreach ( $plugins as $plugin ) {
 									$name   = ! empty( $plugin['name'] ) ? $plugin['name'] : '';
-									$status = HDI_Demo_Importer::plugin_active_status( $plugin['file_path'] );
+									//$status = RTDI_Demo_Importer::plugin_active_status( $plugin['file_path'] );
+									$status = '';
 									if ( 'active' === $status ) {
 										$plugin_class = '<span class="dashicons dashicons-yes-alt"></span>';
 									} elseif ( 'inactive' === $status ) {
@@ -223,7 +224,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 									?>
 									<li class="rtdi-<?php echo esc_attr( $status ); ?>">
 										<?php
-										echo wp_kses_post( $plugin_class ) . ' ' . esc_html( $name ) . ' - <i>' . esc_html( $this->get_plugin_status( $status ) ) . '</i>';
+										//echo wp_kses_post( $plugin_class ) . ' ' . esc_html( $name ) . ' - <i>' . esc_html( $this->get_plugin_status( $status ) ) . '</i>';
 										?>
 									</li>
 									<?php

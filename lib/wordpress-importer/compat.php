@@ -1,9 +1,9 @@
 <?php
 /**
- * Implementation for WordPress functions missing in older WordPress versions.
+ * Implementation for WordPress functions missing
+ * in older WordPress versions.
  *
- * @package WordPress
- * @subpackage Importer
+ * @package RT\DemoImporter
  */
 
 if ( ! function_exists( 'wp_slash_strings_only' ) ) {
@@ -30,7 +30,7 @@ if ( ! function_exists( 'addslashes_strings_only' ) ) {
 	 *
 	 * @since 0.7.0
 	 *
-	 * @param mixed $value
+	 * @param mixed $value Value.
 	 * @return mixed
 	 */
 	function addslashes_strings_only( $value ) {

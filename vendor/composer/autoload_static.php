@@ -26,11 +26,11 @@ class ComposerStaticInit47527935c609223e83d17346e7a480be
         'RT\\DemoImporter\\Controllers\\Admin' => __DIR__ . '/../..' . '/app/Controllers/Admin.php',
         'RT\\DemoImporter\\Controllers\\Admin\\AdminMenu' => __DIR__ . '/../..' . '/app/Controllers/Admin/AdminMenu.php',
         'RT\\DemoImporter\\Controllers\\Ajax' => __DIR__ . '/../..' . '/app/Controllers/Ajax.php',
+        'RT\\DemoImporter\\Controllers\\Hooks\\FilterHooks' => __DIR__ . '/../..' . '/app/Controllers/Hooks/FilterHooks.php',
         'RT\\DemoImporter\\Controllers\\Importer' => __DIR__ . '/../..' . '/app/Controllers/Importer.php',
         'RT\\DemoImporter\\Controllers\\Scripts' => __DIR__ . '/../..' . '/app/Controllers/Scripts.php',
         'RT\\DemoImporter\\Helpers\\Fns' => __DIR__ . '/../..' . '/app/Helpers/Fns.php',
         'RT\\DemoImporter\\Helpers\\Setup' => __DIR__ . '/../..' . '/app/Helpers/Setup.php',
-        'RT\\DemoImporter\\Model\\ThemeConfig' => __DIR__ . '/../..' . '/app/Model/ThemeConfig.php',
         'RT\\DemoImporter\\RadiusDemoImporter' => __DIR__ . '/../..' . '/app/RadiusDemoImporter.php',
         'RT\\DemoImporter\\Traits\\SingletonTrait' => __DIR__ . '/../..' . '/app/Traits/SingletonTrait.php',
     );

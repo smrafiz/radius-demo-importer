@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'This script cannot be accessed directly.' );
 }
 
-define( 'RTDI_VERSION', '1.1.0' );
+define( 'RTDI_VERSION', '1.0.0' );
 define( 'RTDI_FILE', __FILE__ );
 define( 'RTDI_ACTIVE_FILE_NAME', plugin_basename( RTDI_FILE ) );
 define( 'RTDI_PATH', plugin_dir_path( RTDI_FILE ) );

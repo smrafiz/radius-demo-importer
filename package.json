@@ -18,11 +18,11 @@
     "cleanmap": "rm -rf assets/**/**/*.map",
     "zip": "npm run package && npm run dev --zip",
     "eslint": "eslint src/js/**/*.js",
-    "eslint:fix": "eslint src/js/editor.js --fix",
-    "stylelint": "stylelint src/sass/**/**/*.{css,scss}",
-    "stylelint:fix": "stylelint src/sass/**/**/*.{css,scss} --fix",
+    "eslint:fix": "eslint src/js/**/*.js --fix",
+    "stylelint": "stylelint src/scss/**/**/*.{css,scss}",
+    "stylelint:fix": "stylelint src/scss/**/**/*.{css,scss} --fix",
     "prettier": "prettier src/js/**/*.js",
-    "prettier:fix": "prettier --write src/js/**/*.jsx"
+    "prettier:fix": "prettier --write src/js/**/*.js"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.18.2",

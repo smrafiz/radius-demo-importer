@@ -1,41 +1,41 @@
 <?php
 /**
- * WordPress Importer class for managing the import process of a WXR file
+ * WordPress Importer class for managing the import
+ * process of a WXR file
  *
- * @package WordPress
- * @subpackage Importer
+ * @package RT\DemoImporter
  */
 
 /**
  * WordPress importer class.
  */
-class WP_Import extends WP_Importer {
+class RTDI_WP_Import extends WP_Importer {
 	var $max_wxr_version = 1.2; // max. supported WXR version
 
 	var $id; // WXR attachment ID
 
 	// information to import from WXR file
 	var $version;
-	var $authors    = array();
-	var $posts      = array();
-	var $terms      = array();
-	var $categories = array();
-	var $tags       = array();
+	var $authors    = [];
+	var $posts      = [];
+	var $terms      = [];
+	var $categories = [];
+	var $tags       = [];
 	var $base_url   = '';
 
 	// mappings from old information to new
-	var $processed_authors    = array();
-	var $author_mapping       = array();
-	var $processed_terms      = array();
-	var $processed_posts      = array();
-	var $post_orphans         = array();
-	var $processed_menu_items = array();
-	var $menu_item_orphans    = array();
-	var $missing_menu_items   = array();
+	var $processed_authors    = [];
+	var $author_mapping       = [];
+	var $processed_terms      = [];
+	var $processed_posts      = [];
+	var $post_orphans         = [];
+	var $processed_menu_items = [];
+	var $menu_item_orphans    = [];
+	var $missing_menu_items   = [];
 
 	var $fetch_attachments = false;
-	var $url_remap         = array();
-	var $featured_images   = array();
+	var $url_remap         = [];
+	var $featured_images   = [];
 
 	/**
 	 * Registered callback function for the WordPress Importer
@@ -75,8 +75,8 @@ class WP_Import extends WP_Importer {
 	 * @param string $file Path to the WXR file for importing
 	 */
 	function import( $file ) {
-		add_filter( 'import_post_meta_key', array( $this, 'is_valid_meta_key' ) );
-		add_filter( 'http_request_timeout', array( &$this, 'bump_request_timeout' ) );
+		add_filter( 'import_post_meta_key', [ $this, 'is_valid_meta_key' ] );
+		add_filter( 'http_request_timeout', [ &$this, 'bump_request_timeout' ] );
 
 		$this->import_start( $file );
 
@@ -89,7 +89,7 @@ class WP_Import extends WP_Importer {
 		$this->process_posts();
 		wp_suspend_cache_invalidation( false );
 
-		// update incorrect/missing information in the DB
+		// update incorrect/missing information in the DB.
 		$this->backfill_parents();
 		$this->backfill_attachment_urls();
 		$this->remap_featured_images();
@@ -104,8 +104,8 @@ class WP_Import extends WP_Importer {
 	 */
 	function import_start( $file ) {
 		if ( ! is_file( $file ) ) {
-			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'wordpress-importer' ) . '</strong><br />';
-			echo __( 'The file does not exist, please try again.', 'wordpress-importer' ) . '</p>';
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'radius-demo-importer' ) . '</strong><br />';
+			echo __( 'The file does not exist, please try again.', 'radius-demo-importer' ) . '</p>';
 			$this->footer();
 			die();
 		}
@@ -113,7 +113,7 @@ class WP_Import extends WP_Importer {
 		$import_data = $this->parse( $file );
 
 		if ( is_wp_error( $import_data ) ) {
-			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'wordpress-importer' ) . '</strong><br />';
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'radius-demo-importer' ) . '</strong><br />';
 			echo esc_html( $import_data->get_error_message() ) . '</p>';
 			$this->footer();
 			die();
@@ -148,8 +148,8 @@ class WP_Import extends WP_Importer {
 		wp_defer_term_counting( false );
 		wp_defer_comment_counting( false );
 
-		echo '<p>' . __( 'All done.', 'wordpress-importer' ) . ' <a href="' . admin_url() . '">' . __( 'Have fun!', 'wordpress-importer' ) . '</a>' . '</p>';
-		echo '<p>' . __( 'Remember to update the passwords and roles of imported users.', 'wordpress-importer' ) . '</p>';
+		echo '<p>' . __( 'All done.', 'radius-demo-importer' ) . ' <a href="' . admin_url() . '">' . __( 'Have fun!', 'radius-demo-importer' ) . '</a>' . '</p>';
+		echo '<p>' . __( 'Remember to update the passwords and roles of imported users.', 'radius-demo-importer' ) . '</p>';
 
 		do_action( 'import_end' );
 	}
@@ -164,28 +164,31 @@ class WP_Import extends WP_Importer {
 		$file = wp_import_handle_upload();
 
 		if ( isset( $file['error'] ) ) {
-			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'wordpress-importer' ) . '</strong><br />';
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'radius-demo-importer' ) . '</strong><br />';
 			echo esc_html( $file['error'] ) . '</p>';
+
 			return false;
 		} elseif ( ! file_exists( $file['file'] ) ) {
-			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'wordpress-importer' ) . '</strong><br />';
-			printf( __( 'The export file could not be found at <code>%s</code>. It is likely that this was caused by a permissions problem.', 'wordpress-importer' ), esc_html( $file['file'] ) );
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'radius-demo-importer' ) . '</strong><br />';
+			printf( __( 'The export file could not be found at <code>%s</code>. It is likely that this was caused by a permissions problem.', 'radius-demo-importer' ), esc_html( $file['file'] ) );
 			echo '</p>';
+
 			return false;
 		}
 
 		$this->id    = (int) $file['id'];
 		$import_data = $this->parse( $file['file'] );
 		if ( is_wp_error( $import_data ) ) {
-			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'wordpress-importer' ) . '</strong><br />';
+			echo '<p><strong>' . __( 'Sorry, there has been an error.', 'radius-demo-importer' ) . '</strong><br />';
 			echo esc_html( $import_data->get_error_message() ) . '</p>';
+
 			return false;
 		}
 
 		$this->version = $import_data['version'];
 		if ( $this->version > $this->max_wxr_version ) {
 			echo '<div class="error"><p><strong>';
-			printf( __( 'This WXR file (version %s) may not be supported by this version of the importer. Please consider updating.', 'wordpress-importer' ), esc_html( $import_data['version'] ) );
+			printf( __( 'This WXR file (version %s) may not be supported by this version of the importer. Please consider updating.', 'radius-demo-importer' ), esc_html( $import_data['version'] ) );
 			echo '</strong></p></div>';
 		}
 
@@ -205,21 +208,21 @@ class WP_Import extends WP_Importer {
 	function get_authors_from_import( $import_data ) {
 		if ( ! empty( $import_data['authors'] ) ) {
 			$this->authors = $import_data['authors'];
-			// no author information, grab it from the posts
+			// no author information, grab it from the posts.
 		} else {
 			foreach ( $import_data['posts'] as $post ) {
 				$login = sanitize_user( $post['post_author'], true );
 				if ( empty( $login ) ) {
-					printf( __( 'Failed to import author %s. Their posts will be attributed to the current user.', 'wordpress-importer' ), esc_html( $post['post_author'] ) );
+					printf( __( 'Failed to import author %s. Their posts will be attributed to the current user.', 'radius-demo-importer' ), esc_html( $post['post_author'] ) );
 					echo '<br />';
 					continue;
 				}
 
 				if ( ! isset( $this->authors[ $login ] ) ) {
-					$this->authors[ $login ] = array(
+					$this->authors[ $login ] = [
 						'author_login'        => $login,
 						'author_display_name' => $post['post_author'],
-					);
+					];
 				}
 			}
 		}
@@ -233,33 +236,35 @@ class WP_Import extends WP_Importer {
 		$j = 0;
 		// phpcs:disable Generic.WhiteSpace.ScopeIndent.Incorrect
 		?>
-<form action="<?php echo admin_url( 'admin.php?import=wordpress&amp;step=2' ); ?>" method="post">
-	<?php wp_nonce_field( 'import-wordpress' ); ?>
-	<input type="hidden" name="import_id" value="<?php echo $this->id; ?>" />
+		<form action="<?php echo admin_url( 'admin.php?import=wordpress&amp;step=2' ); ?>" method="post">
+			<?php wp_nonce_field( 'import-wordpress' ); ?>
+			<input type="hidden" name="import_id" value="<?php echo $this->id; ?>"/>
 
-<?php if ( ! empty( $this->authors ) ) : ?>
-	<h3><?php _e( 'Assign Authors', 'wordpress-importer' ); ?></h3>
-	<p><?php _e( 'To make it simpler for you to edit and save the imported content, you may want to reassign the author of the imported item to an existing user of this site, such as your primary administrator account.', 'wordpress-importer' ); ?></p>
-<?php if ( $this->allow_create_users() ) : ?>
-	<p><?php printf( __( 'If a new user is created by WordPress, a new password will be randomly generated and the new user&#8217;s role will be set as %s. Manually changing the new user&#8217;s details will be necessary.', 'wordpress-importer' ), esc_html( get_option( 'default_role' ) ) ); ?></p>
-<?php endif; ?>
-	<ol id="authors">
-<?php foreach ( $this->authors as $author ) : ?>
-		<li><?php $this->author_select( $j++, $author ); ?></li>
-<?php endforeach; ?>
-	</ol>
-<?php endif; ?>
+			<?php if ( ! empty( $this->authors ) ) : ?>
+				<h3><?php _e( 'Assign Authors', 'radius-demo-importer' ); ?></h3>
+				<p><?php _e( 'To make it simpler for you to edit and save the imported content, you may want to reassign the author of the imported item to an existing user of this site, such as your primary administrator account.', 'radius-demo-importer' ); ?></p>
+				<?php if ( $this->allow_create_users() ) : ?>
+					<p><?php printf( __( 'If a new user is created by WordPress, a new password will be randomly generated and the new user&#8217;s role will be set as %s. Manually changing the new user&#8217;s details will be necessary.', 'radius-demo-importer' ), esc_html( get_option( 'default_role' ) ) ); ?></p>
+				<?php endif; ?>
+				<ol id="authors">
+					<?php foreach ( $this->authors as $author ) : ?>
+						<li><?php $this->author_select( $j ++, $author ); ?></li>
+					<?php endforeach; ?>
+				</ol>
+			<?php endif; ?>
 
-<?php if ( $this->allow_fetch_attachments() ) : ?>
-	<h3><?php _e( 'Import Attachments', 'wordpress-importer' ); ?></h3>
-	<p>
-		<input type="checkbox" value="1" name="fetch_attachments" id="import-attachments" />
-		<label for="import-attachments"><?php _e( 'Download and import file attachments', 'wordpress-importer' ); ?></label>
-	</p>
-<?php endif; ?>
+			<?php if ( $this->allow_fetch_attachments() ) : ?>
+				<h3><?php _e( 'Import Attachments', 'radius-demo-importer' ); ?></h3>
+				<p>
+					<input type="checkbox" value="1" name="fetch_attachments" id="import-attachments"/>
+					<label
+						for="import-attachments"><?php _e( 'Download and import file attachments', 'radius-demo-importer' ); ?></label>
+				</p>
+			<?php endif; ?>
 
-	<p class="submit"><input type="submit" class="button" value="<?php esc_attr_e( 'Submit', 'wordpress-importer' ); ?>" /></p>
-</form>
+			<p class="submit"><input type="submit" class="button"
+									 value="<?php esc_attr_e( 'Submit', 'radius-demo-importer' ); ?>"/></p>
+		</form>
 		<?php
 		// phpcs:enable Generic.WhiteSpace.ScopeIndent.Incorrect
 	}
@@ -268,11 +273,11 @@ class WP_Import extends WP_Importer {
 	 * Display import options for an individual author. That is, either create
 	 * a new user based on import info or map to an existing user
 	 *
-	 * @param int $n Index for each author in the form
-	 * @param array $author Author information, e.g. login, display name, email
+	 * @param int   $n Index for each author in the form.
+	 * @param array $author Author information, e.g. login, display name, email.
 	 */
 	function author_select( $n, $author ) {
-		_e( 'Import author:', 'wordpress-importer' );
+		_e( 'Import author:', 'radius-demo-importer' );
 		echo ' <strong>' . esc_html( $author['author_display_name'] );
 		if ( '1.0' != $this->version ) {
 			echo ' (' . esc_html( $author['author_login'] ) . ')';
@@ -287,10 +292,10 @@ class WP_Import extends WP_Importer {
 		if ( $create_users ) {
 			echo '<label for="user_new_' . $n . '">';
 			if ( '1.0' != $this->version ) {
-				_e( 'or create new user with login name:', 'wordpress-importer' );
+				_e( 'or create new user with login name:', 'radius-demo-importer' );
 				$value = '';
 			} else {
-				_e( 'as a new user:', 'wordpress-importer' );
+				_e( 'as a new user:', 'radius-demo-importer' );
 				$value = esc_attr( sanitize_user( $author['author_login'], true ) );
 			}
 			echo '</label>';
@@ -300,21 +305,21 @@ class WP_Import extends WP_Importer {
 
 		echo '<label for="imported_authors_' . $n . '">';
 		if ( ! $create_users && '1.0' == $this->version ) {
-			_e( 'assign posts to an existing user:', 'wordpress-importer' );
+			_e( 'assign posts to an existing user:', 'radius-demo-importer' );
 		} else {
-			_e( 'or assign posts to an existing user:', 'wordpress-importer' );
+			_e( 'or assign posts to an existing user:', 'radius-demo-importer' );
 		}
 		echo '</label>';
 
 		echo ' ' . wp_dropdown_users(
-			array(
+			[
 				'name'            => "user_map[$n]",
 				'id'              => 'imported_authors_' . $n,
 				'multi'           => true,
-				'show_option_all' => __( '- Select -', 'wordpress-importer' ),
+				'show_option_all' => __( '- Select -', 'radius-demo-importer' ),
 				'show'            => 'display_name_with_login',
 				'echo'            => 0,
-			)
+			]
 		);
 
 		echo '<input type="hidden" name="imported_authors[' . $n . ']" value="' . esc_attr( $author['author_login'] ) . '" />';
@@ -353,14 +358,14 @@ class WP_Import extends WP_Importer {
 				if ( ! empty( $_POST['user_new'][ $i ] ) ) {
 					$user_id = wp_create_user( $_POST['user_new'][ $i ], wp_generate_password() );
 				} elseif ( '1.0' != $this->version ) {
-					$user_data = array(
+					$user_data = [
 						'user_login'   => $old_login,
 						'user_pass'    => wp_generate_password(),
 						'user_email'   => isset( $this->authors[ $old_login ]['author_email'] ) ? $this->authors[ $old_login ]['author_email'] : '',
 						'display_name' => $this->authors[ $old_login ]['author_display_name'],
 						'first_name'   => isset( $this->authors[ $old_login ]['author_first_name'] ) ? $this->authors[ $old_login ]['author_first_name'] : '',
 						'last_name'    => isset( $this->authors[ $old_login ]['author_last_name'] ) ? $this->authors[ $old_login ]['author_last_name'] : '',
-					);
+					];
 					$user_id   = wp_insert_user( $user_data );
 				}
 
@@ -370,7 +375,7 @@ class WP_Import extends WP_Importer {
 					}
 					$this->author_mapping[ $santized_old_login ] = $user_id;
 				} else {
-					printf( __( 'Failed to create new user for %s. Their posts will be attributed to the current user.', 'wordpress-importer' ), esc_html( $this->authors[ $old_login ]['author_display_name'] ) );
+					printf( __( 'Failed to create new user for %s. Their posts will be attributed to the current user.', 'radius-demo-importer' ), esc_html( $this->authors[ $old_login ]['author_display_name'] ) );
 					if ( defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
 						echo ' ' . $user_id->get_error_message();
 					}
@@ -416,12 +421,12 @@ class WP_Import extends WP_Importer {
 			$parent      = empty( $cat['category_parent'] ) ? 0 : category_exists( $cat['category_parent'] );
 			$description = isset( $cat['category_description'] ) ? $cat['category_description'] : '';
 
-			$data = array(
+			$data = [
 				'category_nicename'    => $cat['category_nicename'],
 				'category_parent'      => $parent,
 				'cat_name'             => wp_slash( $cat['cat_name'] ),
 				'category_description' => wp_slash( $description ),
-			);
+			];
 
 			$id = wp_insert_category( $data, true );
 			if ( ! is_wp_error( $id ) && $id > 0 ) {
@@ -429,7 +434,7 @@ class WP_Import extends WP_Importer {
 					$this->processed_terms[ intval( $cat['term_id'] ) ] = $id;
 				}
 			} else {
-				printf( __( 'Failed to import category %s', 'wordpress-importer' ), esc_html( $cat['category_nicename'] ) );
+				printf( __( 'Failed to import category %s', 'radius-demo-importer' ), esc_html( $cat['category_nicename'] ) );
 				if ( defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
 					echo ': ' . $id->get_error_message();
 				}
@@ -456,7 +461,7 @@ class WP_Import extends WP_Importer {
 		}
 
 		foreach ( $this->tags as $tag ) {
-			// if the tag already exists leave it alone
+			// if the tag already exists leave it alone.
 			$term_id = term_exists( $tag['tag_slug'], 'post_tag' );
 			if ( $term_id ) {
 				if ( is_array( $term_id ) ) {
@@ -469,10 +474,10 @@ class WP_Import extends WP_Importer {
 			}
 
 			$description = isset( $tag['tag_description'] ) ? $tag['tag_description'] : '';
-			$args        = array(
+			$args        = [
 				'slug'        => $tag['tag_slug'],
 				'description' => wp_slash( $description ),
-			);
+			];
 
 			$id = wp_insert_term( wp_slash( $tag['tag_name'] ), 'post_tag', $args );
 			if ( ! is_wp_error( $id ) ) {
@@ -480,7 +485,7 @@ class WP_Import extends WP_Importer {
 					$this->processed_terms[ intval( $tag['term_id'] ) ] = $id['term_id'];
 				}
 			} else {
-				printf( __( 'Failed to import post tag %s', 'wordpress-importer' ), esc_html( $tag['tag_name'] ) );
+				printf( __( 'Failed to import post tag %s', 'radius-demo-importer' ), esc_html( $tag['tag_name'] ) );
 				if ( defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
 					echo ': ' . $id->get_error_message();
 				}
@@ -529,11 +534,11 @@ class WP_Import extends WP_Importer {
 			}
 
 			$description = isset( $term['term_description'] ) ? $term['term_description'] : '';
-			$args        = array(
+			$args        = [
 				'slug'        => $term['slug'],
 				'description' => wp_slash( $description ),
 				'parent'      => (int) $parent,
-			);
+			];
 
 			$id = wp_insert_term( wp_slash( $term['term_name'] ), $term['term_taxonomy'], $args );
 			if ( ! is_wp_error( $id ) ) {
@@ -541,7 +546,7 @@ class WP_Import extends WP_Importer {
 					$this->processed_terms[ intval( $term['term_id'] ) ] = $id['term_id'];
 				}
 			} else {
-				printf( __( 'Failed to import %1$s %2$s', 'wordpress-importer' ), esc_html( $term['term_taxonomy'] ), esc_html( $term['term_name'] ) );
+				printf( __( 'Failed to import %1$s %2$s', 'radius-demo-importer' ), esc_html( $term['term_taxonomy'] ), esc_html( $term['term_name'] ) );
 				if ( defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
 					echo ': ' . $id->get_error_message();
 				}
@@ -558,24 +563,24 @@ class WP_Import extends WP_Importer {
 	/**
 	 * Add metadata to imported term.
 	 *
-	 * @since 0.6.2
-	 *
-	 * @param array $term    Term data from WXR import.
+	 * @param array $term Term data from WXR import.
 	 * @param int   $term_id ID of the newly created term.
+	 *
+	 * @since 0.6.2
 	 */
 	protected function process_termmeta( $term, $term_id ) {
 		if ( ! isset( $term['termmeta'] ) ) {
-			$term['termmeta'] = array();
+			$term['termmeta'] = [];
 		}
 
 		/**
 		 * Filters the metadata attached to an imported term.
 		 *
-		 * @since 0.6.2
-		 *
 		 * @param array $termmeta Array of term meta.
-		 * @param int   $term_id  ID of the newly created term.
-		 * @param array $term     Term data from the WXR import.
+		 * @param int $term_id ID of the newly created term.
+		 * @param array $term Term data from the WXR import.
+		 *
+		 * @since 0.6.2
 		 */
 		$term['termmeta'] = apply_filters( 'wp_import_term_meta', $term['termmeta'], $term_id, $term );
 
@@ -587,11 +592,11 @@ class WP_Import extends WP_Importer {
 			/**
 			 * Filters the meta key for an imported piece of term meta.
 			 *
-			 * @since 0.6.2
-			 *
 			 * @param string $meta_key Meta key.
-			 * @param int    $term_id  ID of the newly created term.
-			 * @param array  $term     Term data from the WXR import.
+			 * @param int $term_id ID of the newly created term.
+			 * @param array $term Term data from the WXR import.
+			 *
+			 * @since 0.6.2
 			 */
 			$key = apply_filters( 'import_term_meta_key', $meta['key'], $term_id, $term );
 			if ( ! $key ) {
@@ -606,11 +611,11 @@ class WP_Import extends WP_Importer {
 			/**
 			 * Fires after term meta is imported.
 			 *
-			 * @since 0.6.2
+			 * @param int $term_id ID of the newly created term.
+			 * @param string $key Meta key.
+			 * @param mixed $value Meta value.
 			 *
-			 * @param int    $term_id ID of the newly created term.
-			 * @param string $key     Meta key.
-			 * @param mixed  $value   Meta value.
+			 * @since 0.6.2
 			 */
 			do_action( 'import_term_meta', $term_id, $key, $value );
 		}
@@ -632,7 +637,7 @@ class WP_Import extends WP_Importer {
 
 			if ( ! post_type_exists( $post['post_type'] ) ) {
 				printf(
-					__( 'Failed to import &#8220;%1$s&#8221;: Invalid post type %2$s', 'wordpress-importer' ),
+					__( 'Failed to import &#8220;%1$s&#8221;: Invalid post type %2$s', 'radius-demo-importer' ),
 					esc_html( $post['post_title'] ),
 					esc_html( $post['post_type'] )
 				);
@@ -659,21 +664,21 @@ class WP_Import extends WP_Importer {
 			$post_exists = post_exists( $post['post_title'], '', $post['post_date'] );
 
 			/**
-			* Filter ID of the existing post corresponding to post currently importing.
-			*
-			* Return 0 to force the post to be imported. Filter the ID to be something else
-			* to override which existing post is mapped to the imported post.
-			*
-			* @see post_exists()
-			* @since 0.6.2
-			*
-			* @param int   $post_exists  Post ID, or 0 if post did not exist.
-			* @param array $post         The post array to be inserted.
-			*/
+			 * Filter ID of the existing post corresponding to post currently importing.
+			 *
+			 * Return 0 to force the post to be imported. Filter the ID to be something else
+			 * to override which existing post is mapped to the imported post.
+			 *
+			 * @param int $post_exists Post ID, or 0 if post did not exist.
+			 * @param array $post The post array to be inserted.
+			 *
+			 * @see post_exists()
+			 * @since 0.6.2
+			 */
 			$post_exists = apply_filters( 'wp_import_existing_post', $post_exists, $post );
 
 			if ( $post_exists && get_post_type( $post_exists ) == $post['post_type'] ) {
-				printf( __( '%1$s &#8220;%2$s&#8221; already exists.', 'wordpress-importer' ), $post_type_object->labels->singular_name, esc_html( $post['post_title'] ) );
+				printf( __( '%1$s &#8220;%2$s&#8221; already exists.', 'radius-demo-importer' ), $post_type_object->labels->singular_name, esc_html( $post['post_title'] ) );
 				echo '<br />';
 				$comment_post_id = $post_exists;
 				$post_id         = $post_exists;
@@ -681,17 +686,17 @@ class WP_Import extends WP_Importer {
 			} else {
 				$post_parent = (int) $post['post_parent'];
 				if ( $post_parent ) {
-					// if we already know the parent, map it to the new local ID
+					// if we already know the parent, map it to the new local ID.
 					if ( isset( $this->processed_posts[ $post_parent ] ) ) {
 						$post_parent = $this->processed_posts[ $post_parent ];
-						// otherwise record the parent for later
+						// otherwise record the parent for later.
 					} else {
 						$this->post_orphans[ intval( $post['post_id'] ) ] = $post_parent;
 						$post_parent                                      = 0;
 					}
 				}
 
-				// map the post author
+				// map the post author.
 				$author = sanitize_user( $post['post_author'], true );
 				if ( isset( $this->author_mapping[ $author ] ) ) {
 					$author = $this->author_mapping[ $author ];
@@ -699,7 +704,7 @@ class WP_Import extends WP_Importer {
 					$author = (int) get_current_user_id();
 				}
 
-				$postdata = array(
+				$postdata = [
 					'import_id'      => $post['post_id'],
 					'post_author'    => $author,
 					'post_date'      => $post['post_date'],
@@ -716,7 +721,7 @@ class WP_Import extends WP_Importer {
 					'menu_order'     => $post['menu_order'],
 					'post_type'      => $post['post_type'],
 					'post_password'  => $post['post_password'],
-				);
+				];
 
 				$original_post_id = $post['post_id'];
 				$postdata         = apply_filters( 'wp_import_post_data_processed', $postdata, $post );
@@ -750,7 +755,7 @@ class WP_Import extends WP_Importer {
 
 				if ( is_wp_error( $post_id ) ) {
 					printf(
-						__( 'Failed to import %1$s &#8220;%2$s&#8221;', 'wordpress-importer' ),
+						__( 'Failed to import %1$s &#8220;%2$s&#8221;', 'radius-demo-importer' ),
 						$post_type_object->labels->singular_name,
 						esc_html( $post['post_title'] )
 					);
@@ -766,30 +771,30 @@ class WP_Import extends WP_Importer {
 				}
 			}
 
-			// map pre-import ID to local ID
+			// map pre-import ID to local ID.
 			$this->processed_posts[ intval( $post['post_id'] ) ] = (int) $post_id;
 
 			if ( ! isset( $post['terms'] ) ) {
-				$post['terms'] = array();
+				$post['terms'] = [];
 			}
 
 			$post['terms'] = apply_filters( 'wp_import_post_terms', $post['terms'], $post_id, $post );
 
 			// add categories, tags and other terms
 			if ( ! empty( $post['terms'] ) ) {
-				$terms_to_set = array();
+				$terms_to_set = [];
 				foreach ( $post['terms'] as $term ) {
 					// back compat with WXR 1.0 map 'tag' to 'post_tag'
 					$taxonomy    = ( 'tag' == $term['domain'] ) ? 'post_tag' : $term['domain'];
 					$term_exists = term_exists( $term['slug'], $taxonomy );
 					$term_id     = is_array( $term_exists ) ? $term_exists['term_id'] : $term_exists;
 					if ( ! $term_id ) {
-						$t = wp_insert_term( $term['name'], $taxonomy, array( 'slug' => $term['slug'] ) );
+						$t = wp_insert_term( $term['name'], $taxonomy, [ 'slug' => $term['slug'] ] );
 						if ( ! is_wp_error( $t ) ) {
 							$term_id = $t['term_id'];
 							do_action( 'wp_import_insert_term', $t, $term, $post_id, $post );
 						} else {
-							printf( __( 'Failed to import %1$s %2$s', 'wordpress-importer' ), esc_html( $taxonomy ), esc_html( $term['name'] ) );
+							printf( __( 'Failed to import %1$s %2$s', 'radius-demo-importer' ), esc_html( $taxonomy ), esc_html( $term['name'] ) );
 							if ( defined( 'IMPORT_DEBUG' ) && IMPORT_DEBUG ) {
 								echo ': ' . $t->get_error_message();
 							}
@@ -809,7 +814,7 @@ class WP_Import extends WP_Importer {
 			}
 
 			if ( ! isset( $post['comments'] ) ) {
-				$post['comments'] = array();
+				$post['comments'] = [];
 			}
 
 			$post['comments'] = apply_filters( 'wp_import_post_comments', $post['comments'], $post_id, $post );
@@ -817,7 +822,7 @@ class WP_Import extends WP_Importer {
 			// add/update comments
 			if ( ! empty( $post['comments'] ) ) {
 				$num_comments      = 0;
-				$inserted_comments = array();
+				$inserted_comments = [];
 				foreach ( $post['comments'] as $comment ) {
 					$comment_id                                    = $comment['comment_id'];
 					$newcomments[ $comment_id ]['comment_post_ID'] = $comment_post_id;
@@ -831,7 +836,7 @@ class WP_Import extends WP_Importer {
 					$newcomments[ $comment_id ]['comment_approved']     = $comment['comment_approved'];
 					$newcomments[ $comment_id ]['comment_type']         = $comment['comment_type'];
 					$newcomments[ $comment_id ]['comment_parent']       = $comment['comment_parent'];
-					$newcomments[ $comment_id ]['commentmeta']          = isset( $comment['commentmeta'] ) ? $comment['commentmeta'] : array();
+					$newcomments[ $comment_id ]['commentmeta']          = isset( $comment['commentmeta'] ) ? $comment['commentmeta'] : [];
 					if ( isset( $this->processed_authors[ $comment['comment_user_id'] ] ) ) {
 						$newcomments[ $comment_id ]['user_id'] = $this->processed_authors[ $comment['comment_user_id'] ];
 					}
@@ -859,14 +864,14 @@ class WP_Import extends WP_Importer {
 							add_comment_meta( $inserted_comments[ $key ], wp_slash( $meta['key'] ), wp_slash_strings_only( $value ) );
 						}
 
-						$num_comments++;
+						$num_comments ++;
 					}
 				}
 				unset( $newcomments, $inserted_comments, $post['comments'] );
 			}
 
 			if ( ! isset( $post['postmeta'] ) ) {
-				$post['postmeta'] = array();
+				$post['postmeta'] = [];
 			}
 
 			$post['postmeta'] = apply_filters( 'wp_import_post_meta', $post['postmeta'], $post_id, $post );
@@ -936,15 +941,17 @@ class WP_Import extends WP_Importer {
 
 		// no nav_menu term associated with this menu item
 		if ( ! $menu_slug ) {
-			_e( 'Menu item skipped due to missing menu slug', 'wordpress-importer' );
+			_e( 'Menu item skipped due to missing menu slug', 'radius-demo-importer' );
 			echo '<br />';
+
 			return;
 		}
 
 		$menu_id = term_exists( $menu_slug, 'nav_menu' );
 		if ( ! $menu_id ) {
-			printf( __( 'Menu item skipped due to invalid menu slug: %s', 'wordpress-importer' ), esc_html( $menu_slug ) );
+			printf( __( 'Menu item skipped due to invalid menu slug: %s', 'radius-demo-importer' ), esc_html( $menu_slug ) );
 			echo '<br />';
+
 			return;
 		} else {
 			$menu_id = is_array( $menu_id ) ? $menu_id['term_id'] : $menu_id;
@@ -961,6 +968,7 @@ class WP_Import extends WP_Importer {
 		} elseif ( 'custom' != $_menu_item_type ) {
 			// associated object is missing or not imported yet, we'll retry later
 			$this->missing_menu_items[] = $item;
+
 			return;
 		}
 
@@ -977,7 +985,7 @@ class WP_Import extends WP_Importer {
 			$_menu_item_classes = implode( ' ', $_menu_item_classes );
 		}
 
-		$args = array(
+		$args = [
 			'menu-item-object-id'   => $_menu_item_object_id,
 			'menu-item-object'      => $_menu_item_object,
 			'menu-item-parent-id'   => $_menu_item_menu_item_parent,
@@ -991,7 +999,7 @@ class WP_Import extends WP_Importer {
 			'menu-item-classes'     => $_menu_item_classes,
 			'menu-item-xfn'         => $_menu_item_xfn,
 			'menu-item-status'      => $item['status'],
-		);
+		];
 
 		$id = wp_update_nav_menu_item( $menu_id, 0, $args );
 		if ( $id && ! is_wp_error( $id ) ) {
@@ -1002,15 +1010,16 @@ class WP_Import extends WP_Importer {
 	/**
 	 * If fetching attachments is enabled then attempt to create a new attachment
 	 *
-	 * @param array $post Attachment post details from WXR
+	 * @param array  $post Attachment post details from WXR
 	 * @param string $url URL to fetch attachment from
+	 *
 	 * @return int|WP_Error Post ID on success, WP_Error otherwise
 	 */
 	function process_attachment( $post, $url ) {
 		if ( ! $this->fetch_attachments ) {
 			return new WP_Error(
 				'attachment_processing_error',
-				__( 'Fetching attachments is not enabled', 'wordpress-importer' )
+				__( 'Fetching attachments is not enabled', 'radius-demo-importer' )
 			);
 		}
 
@@ -1028,7 +1037,7 @@ class WP_Import extends WP_Importer {
 		if ( $info ) {
 			$post['post_mime_type'] = $info['type'];
 		} else {
-			return new WP_Error( 'attachment_processing_error', __( 'Invalid file type', 'wordpress-importer' ) );
+			return new WP_Error( 'attachment_processing_error', __( 'Invalid file type', 'radius-demo-importer' ) );
 		}
 
 		$post['guid'] = $upload['url'];
@@ -1055,10 +1064,11 @@ class WP_Import extends WP_Importer {
 	 * Attempt to download a remote file attachment
 	 *
 	 * @param string $url URL of item to fetch
-	 * @param array $post Attachment details
+	 * @param array  $post Attachment details
+	 *
 	 * @return array|WP_Error Local file location details on success, WP_Error otherwise
 	 */
-	function fetch_remote_file( $url, $post ) {
+	function fetch_remote_file_old( $url, $post ) {
 		// Extract the file name from the URL.
 		$path      = parse_url( $url, PHP_URL_PATH );
 		$file_name = '';
@@ -1072,29 +1082,30 @@ class WP_Import extends WP_Importer {
 
 		$tmp_file_name = wp_tempnam( $file_name );
 		if ( ! $tmp_file_name ) {
-			return new WP_Error( 'import_no_file', __( 'Could not create temporary file.', 'wordpress-importer' ) );
+			return new WP_Error( 'import_no_file', __( 'Could not create temporary file.', 'radius-demo-importer' ) );
 		}
 
 		// Fetch the remote URL and write it to the placeholder file.
 		$remote_response = wp_safe_remote_get(
 			$url,
-			array(
+			[
 				'timeout'  => 300,
 				'stream'   => true,
 				'filename' => $tmp_file_name,
-				'headers'  => array(
+				'headers'  => [
 					'Accept-Encoding' => 'identity',
-				),
-			)
+				],
+			]
 		);
 
 		if ( is_wp_error( $remote_response ) ) {
 			@unlink( $tmp_file_name );
+
 			return new WP_Error(
 				'import_file_error',
 				sprintf(
-					/* translators: 1: The WordPress error message. 2: The WordPress error code. */
-					__( 'Request failed due to an error: %1$s (%2$s)', 'wordpress-importer' ),
+				/* translators: 1: The WordPress error message. 2: The WordPress error code. */
+					__( 'Request failed due to an error: %1$s (%2$s)', 'radius-demo-importer' ),
 					esc_html( $remote_response->get_error_message() ),
 					esc_html( $remote_response->get_error_code() )
 				)
@@ -1106,11 +1117,12 @@ class WP_Import extends WP_Importer {
 		// Make sure the fetch was successful.
 		if ( 200 !== $remote_response_code ) {
 			@unlink( $tmp_file_name );
+
 			return new WP_Error(
 				'import_file_error',
 				sprintf(
-					/* translators: 1: The HTTP error message. 2: The HTTP error code. */
-					__( 'Remote server returned the following unexpected result: %1$s (%2$s)', 'wordpress-importer' ),
+				/* translators: 1: The HTTP error message. 2: The HTTP error code. */
+					__( 'Remote server returned the following unexpected result: %1$s (%2$s)', 'radius-demo-importer' ),
 					get_status_header_desc( $remote_response_code ),
 					esc_html( $remote_response_code )
 				)
@@ -1122,25 +1134,29 @@ class WP_Import extends WP_Importer {
 		// Request failed.
 		if ( ! $headers ) {
 			@unlink( $tmp_file_name );
-			return new WP_Error( 'import_file_error', __( 'Remote server did not respond', 'wordpress-importer' ) );
+
+			return new WP_Error( 'import_file_error', __( 'Remote server did not respond', 'radius-demo-importer' ) );
 		}
 
 		$filesize = (int) filesize( $tmp_file_name );
 
 		if ( 0 === $filesize ) {
 			@unlink( $tmp_file_name );
-			return new WP_Error( 'import_file_error', __( 'Zero size file downloaded', 'wordpress-importer' ) );
+
+			return new WP_Error( 'import_file_error', __( 'Zero size file downloaded', 'radius-demo-importer' ) );
 		}
 
 		if ( ! isset( $headers['content-encoding'] ) && isset( $headers['content-length'] ) && $filesize !== (int) $headers['content-length'] ) {
 			@unlink( $tmp_file_name );
-			return new WP_Error( 'import_file_error', __( 'Downloaded file has incorrect size', 'wordpress-importer' ) );
+
+			return new WP_Error( 'import_file_error', __( 'Downloaded file has incorrect size', 'radius-demo-importer' ) );
 		}
 
 		$max_size = (int) $this->max_attachment_size();
 		if ( ! empty( $max_size ) && $filesize > $max_size ) {
 			@unlink( $tmp_file_name );
-			return new WP_Error( 'import_file_error', sprintf( __( 'Remote file is too large, limit is %s', 'wordpress-importer' ), size_format( $max_size ) ) );
+
+			return new WP_Error( 'import_file_error', sprintf( __( 'Remote file is too large, limit is %s', 'radius-demo-importer' ), size_format( $max_size ) ) );
 		}
 
 		// Override file name with Content-Disposition header value.
@@ -1172,7 +1188,7 @@ class WP_Import extends WP_Importer {
 		}
 
 		if ( ( ! $type || ! $ext ) && ! current_user_can( 'unfiltered_upload' ) ) {
-			return new WP_Error( 'import_file_error', __( 'Sorry, this file type is not permitted for security reasons.', 'wordpress-importer' ) );
+			return new WP_Error( 'import_file_error', __( 'Sorry, this file type is not permitted for security reasons.', 'radius-demo-importer' ) );
 		}
 
 		$uploads = wp_upload_dir( $post['upload_date'] );
@@ -1187,7 +1203,8 @@ class WP_Import extends WP_Importer {
 
 		if ( ! $move_new_file ) {
 			@unlink( $tmp_file_name );
-			return new WP_Error( 'import_file_error', __( 'The uploaded file could not be moved', 'wordpress-importer' ) );
+
+			return new WP_Error( 'import_file_error', __( 'The uploaded file could not be moved', 'radius-demo-importer' ) );
 		}
 
 		// Set correct file permissions.
@@ -1195,17 +1212,76 @@ class WP_Import extends WP_Importer {
 		$perms = $stat['mode'] & 0000666;
 		chmod( $new_file, $perms );
 
-		$upload = array(
+		$upload = [
 			'file'  => $new_file,
 			'url'   => $uploads['url'] . "/$file_name",
 			'type'  => $wp_filetype['type'],
 			'error' => false,
-		);
+		];
 
 		// keep track of the old and new urls so we can substitute them later
 		$this->url_remap[ $url ]          = $upload['url'];
 		$this->url_remap[ $post['guid'] ] = $upload['url']; // r13735, really needed?
 		// keep track of the destination if the remote url is redirected somewhere else
+		if ( isset( $headers['x-final-location'] ) && $headers['x-final-location'] != $url ) {
+			$this->url_remap[ $headers['x-final-location'] ] = $upload['url'];
+		}
+
+		return $upload;
+	}
+
+	function fetch_remote_file( $url, $post ) {
+		// extract the file name and extension from the url.
+		$file_name = basename( $url );
+
+		// get placeholder file in the upload dir with a unique, sanitized filename.
+		$upload = wp_upload_bits( $file_name, 0, '', $post['upload_date'] );
+		if ( $upload['error'] ) {
+			return new WP_Error( 'upload_dir_error', $upload['error'] );
+		}
+
+		// fetch the remote url and write it to the placeholder file.
+		$headers = wp_get_http( $url, $upload['file'] );
+
+		// request failed.
+		if ( ! $headers ) {
+			@unlink( $upload['file'] );
+
+			return new WP_Error( 'import_file_error', __( 'Remote server did not respond', 'radius-demo-importer' ) );
+		}
+
+		// make sure the fetch was successful.
+		if ( $headers['response'] != '200' ) {
+			@unlink( $upload['file'] );
+
+			return new WP_Error( 'import_file_error', sprintf( __( 'Remote server returned error response %1$d %2$s', 'radius-demo-importer' ), esc_html( $headers['response'] ), get_status_header_desc( $headers['response'] ) ) );
+		}
+
+		$filesize = filesize( $upload['file'] );
+
+		if ( isset( $headers['content-length'] ) && $filesize != $headers['content-length'] ) {
+			@unlink( $upload['file'] );
+
+			return new WP_Error( 'import_file_error', __( 'Remote file is incorrect size', 'radius-demo-importer' ) );
+		}
+
+		if ( 0 == $filesize ) {
+			@unlink( $upload['file'] );
+
+			return new WP_Error( 'import_file_error', __( 'Zero size file downloaded', 'radius-demo-importer' ) );
+		}
+
+		$max_size = (int) $this->max_attachment_size();
+		if ( ! empty( $max_size ) && $filesize > $max_size ) {
+			@unlink( $upload['file'] );
+
+			return new WP_Error( 'import_file_error', sprintf( __( 'Remote file is too large, limit is %s', 'radius-demo-importer' ), size_format( $max_size ) ) );
+		}
+
+		// keep track of the old and new urls so we can substitute them later.
+		$this->url_remap[ $url ]          = $upload['url'];
+		$this->url_remap[ $post['guid'] ] = $upload['url']; // r13735, really needed?
+		// keep track of the destination if the remote url is redirected somewhere else.
 		if ( isset( $headers['x-final-location'] ) && $headers['x-final-location'] != $url ) {
 			$this->url_remap[ $headers['x-final-location'] ] = $upload['url'];
 		}
@@ -1235,7 +1311,7 @@ class WP_Import extends WP_Importer {
 			}
 
 			if ( $local_child_id && $local_parent_id ) {
-				$wpdb->update( $wpdb->posts, array( 'post_parent' => $local_parent_id ), array( 'ID' => $local_child_id ), '%d', '%d' );
+				$wpdb->update( $wpdb->posts, [ 'post_parent' => $local_parent_id ], [ 'ID' => $local_child_id ], '%d', '%d' );
 				clean_post_cache( $local_child_id );
 			}
 		}
@@ -1269,7 +1345,7 @@ class WP_Import extends WP_Importer {
 	function backfill_attachment_urls() {
 		global $wpdb;
 		// make sure we do the longest urls first, in case one is a substring of another
-		uksort( $this->url_remap, array( &$this, 'cmpr_strlen' ) );
+		uksort( $this->url_remap, [ &$this, 'cmpr_strlen' ] );
 
 		foreach ( $this->url_remap as $from_url => $to_url ) {
 			// remap urls in post_content
@@ -1299,24 +1375,26 @@ class WP_Import extends WP_Importer {
 	 * Parse a WXR file
 	 *
 	 * @param string $file Path to WXR file for parsing
+	 *
 	 * @return array Information gathered from the WXR file
 	 */
 	function parse( $file ) {
-		$parser = new WXR_Parser();
+		$parser = new RTDI_WXR_Parser();
+
 		return $parser->parse( $file );
 	}
 
 	// Display import page title
 	function header() {
 		echo '<div class="wrap">';
-		echo '<h2>' . __( 'Import WordPress', 'wordpress-importer' ) . '</h2>';
+		echo '<h2>' . __( 'Import WordPress', 'radius-demo-importer' ) . '</h2>';
 
 		$updates  = get_plugin_updates();
 		$basename = plugin_basename( __FILE__ );
 		if ( isset( $updates[ $basename ] ) ) {
 			$update = $updates[ $basename ];
 			echo '<div class="error"><p><strong>';
-			printf( __( 'A new version of this importer is available. Please update to version %s to ensure compatibility with newer export files.', 'wordpress-importer' ), $update->update->new_version );
+			printf( __( 'A new version of this importer is available. Please update to version %s to ensure compatibility with newer export files.', 'radius-demo-importer' ), $update->update->new_version );
 			echo '</strong></p></div>';
 		}
 	}
@@ -1331,8 +1409,8 @@ class WP_Import extends WP_Importer {
 	 */
 	function greet() {
 		echo '<div class="narrow">';
-		echo '<p>' . __( 'Howdy! Upload your WordPress eXtended RSS (WXR) file and we&#8217;ll import the posts, pages, comments, custom fields, categories, and tags into this site.', 'wordpress-importer' ) . '</p>';
-		echo '<p>' . __( 'Choose a WXR (.xml) file to upload, then click Upload file and import.', 'wordpress-importer' ) . '</p>';
+		echo '<p>' . __( 'Howdy! Upload your WordPress eXtended RSS (WXR) file and we&#8217;ll import the posts, pages, comments, custom fields, categories, and tags into this site.', 'radius-demo-importer' ) . '</p>';
+		echo '<p>' . __( 'Choose a WXR (.xml) file to upload, then click Upload file and import.', 'radius-demo-importer' ) . '</p>';
 		wp_import_upload_form( 'admin.php?import=wordpress&amp;step=1' );
 		echo '</div>';
 	}
@@ -1341,14 +1419,16 @@ class WP_Import extends WP_Importer {
 	 * Decide if the given meta key maps to information we will want to import
 	 *
 	 * @param string $key The meta key to check
+	 *
 	 * @return string|bool The key if we do want to import, false if not
 	 */
 	function is_valid_meta_key( $key ) {
 		// skip attachment metadata since we'll regenerate it from scratch
 		// skip _edit_lock as not relevant for import
-		if ( in_array( $key, array( '_wp_attached_file', '_wp_attachment_metadata', '_edit_lock' ), true ) ) {
+		if ( in_array( $key, [ '_wp_attached_file', '_wp_attachment_metadata', '_edit_lock' ], true ) ) {
 			return false;
 		}
+
 		return $key;
 	}
 
@@ -1385,6 +1465,7 @@ class WP_Import extends WP_Importer {
 
 	/**
 	 * Added to http_request_timeout filter to force timeout at 60 seconds during import
+	 *
 	 * @return int 60
 	 */
 	function bump_request_timeout( $val ) {
@@ -1417,15 +1498,15 @@ class WP_Import extends WP_Importer {
 	 *                         | ext-token "=" ext-value
 	 *     ext-token           = <the characters in token, followed by "*">
 	 *
-	 * @since 0.7.0
+	 * @param string[] $disposition_header List of Content-Disposition header values.
 	 *
-	 * @see WP_REST_Attachments_Controller::get_filename_from_disposition()
-	 *
+	 * @return string|null Filename if available, or null if not found.
 	 * @link http://tools.ietf.org/html/rfc2388
 	 * @link http://tools.ietf.org/html/rfc6266
 	 *
-	 * @param string[] $disposition_header List of Content-Disposition header values.
-	 * @return string|null Filename if available, or null if not found.
+	 * @since 0.7.0
+	 *
+	 * @see WP_REST_Attachments_Controller::get_filename_from_disposition()
 	 */
 	protected static function get_filename_from_disposition( $disposition_header ) {
 		// Get the filename.
@@ -1441,7 +1522,7 @@ class WP_Import extends WP_Importer {
 			list( $type, $attr_parts ) = explode( ';', $value, 2 );
 
 			$attr_parts = explode( ';', $attr_parts );
-			$attributes = array();
+			$attributes = [];
 
 			foreach ( $attr_parts as $part ) {
 				if ( strpos( $part, '=' ) === false ) {
@@ -1460,8 +1541,8 @@ class WP_Import extends WP_Importer {
 			$filename = trim( $attributes['filename'] );
 
 			// Unquote quoted filename, but after trimming.
-			if ( substr( $filename, 0, 1 ) === '"' && substr( $filename, -1, 1 ) === '"' ) {
-				$filename = substr( $filename, 1, -1 );
+			if ( substr( $filename, 0, 1 ) === '"' && substr( $filename, - 1, 1 ) === '"' ) {
+				$filename = substr( $filename, 1, - 1 );
 			}
 		}
 
@@ -1471,10 +1552,10 @@ class WP_Import extends WP_Importer {
 	/**
 	 * Retrieves file extension by mime type.
 	 *
-	 * @since 0.7.0
-	 *
 	 * @param string $mime_type Mime type to search extension for.
+	 *
 	 * @return string|null File extension if available, or null if not found.
+	 * @since 0.7.0
 	 */
 	protected static function get_file_extension_by_mime_type( $mime_type ) {
 		static $map = null;

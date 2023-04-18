@@ -30,7 +30,7 @@ class Importer extends Controller {
 	 * @return array
 	 */
 	public function services() {
-//		$this->classes[] = Importer\CntentImporter::class;
+		$this->classes[] = Importer\Content::class;
 //		$this->classes[] = Importer\CustomizerImporter::class;
 //		$this->classes[] = Importer\WidgetsImporter::class;
 

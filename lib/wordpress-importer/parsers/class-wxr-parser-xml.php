@@ -2,15 +2,14 @@
 /**
  * WordPress eXtended RSS file parser implementations
  *
- * @package WordPress
- * @subpackage Importer
+ * @package RT\DemoImporter
  */
 
 /**
  * WXR Parser that makes use of the XML Parser PHP extension.
  */
-class WXR_Parser_XML {
-	public $wp_tags     = array(
+class RTDI_WXR_Parser_XML {
+	public $wp_tags     = [
 		'wp:post_id',
 		'wp:post_date',
 		'wp:post_date_gmt',
@@ -42,8 +41,8 @@ class WXR_Parser_XML {
 		'wp:author_display_name',
 		'wp:author_first_name',
 		'wp:author_last_name',
-	);
-	public $wp_sub_tags = array(
+	];
+	public $wp_sub_tags = [
 		'wp:comment_id',
 		'wp:comment_author',
 		'wp:comment_author_email',
@@ -56,7 +55,7 @@ class WXR_Parser_XML {
 		'wp:comment_type',
 		'wp:comment_parent',
 		'wp:comment_user_id',
-	);
+	];
 
 	public $wxr_version;
 	public $in_post;
@@ -81,11 +80,11 @@ class WXR_Parser_XML {
 		$this->sub_data    = false;
 		$this->in_tag      = false;
 		$this->in_sub_tag  = false;
-		$this->authors     = array();
-		$this->posts       = array();
-		$this->term        = array();
-		$this->category    = array();
-		$this->tag         = array();
+		$this->authors     = [];
+		$this->posts       = [];
+		$this->term        = [];
+		$this->category    = [];
+		$this->tag         = [];
 
 		$xml = xml_parser_create( 'UTF-8' );
 		xml_parser_set_option( $xml, XML_OPTION_SKIP_WHITE, 1 );
@@ -99,15 +98,24 @@ class WXR_Parser_XML {
 			$current_column = xml_get_current_column_number( $xml );
 			$error_code     = xml_get_error_code( $xml );
 			$error_string   = xml_error_string( $error_code );
-			return new WP_Error( 'XML_parse_error', 'There was an error when reading this WXR file', array( $current_line, $current_column, $error_string ) );
+
+			return new WP_Error(
+				'XML_parse_error',
+				'There was an error when reading this WXR file',
+				[
+					$current_line,
+					$current_column,
+					$error_string,
+				]
+			);
 		}
 		xml_parser_free( $xml );
 
 		if ( ! preg_match( '/^\d+\.\d+$/', $this->wxr_version ) ) {
-			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'wordpress-importer' ) );
+			return new WP_Error( 'WXR_parse_error', __( 'This does not appear to be a WXR file, missing/invalid WXR version number', 'radius-demo-importer' ) );
 		}
 
-		return array(
+		return [
 			'authors'       => $this->authors,
 			'posts'         => $this->posts,
 			'categories'    => $this->category,
@@ -116,17 +124,19 @@ class WXR_Parser_XML {
 			'base_url'      => $this->base_url,
 			'base_blog_url' => $this->base_blog_url,
 			'version'       => $this->wxr_version,
-		);
+		];
 	}
 
 	function tag_open( $parse, $tag, $attr ) {
 		if ( in_array( $tag, $this->wp_tags, true ) ) {
 			$this->in_tag = substr( $tag, 3 );
+
 			return;
 		}
 
 		if ( in_array( $tag, $this->wp_sub_tags, true ) ) {
 			$this->in_sub_tag = substr( $tag, 3 );
+
 			return;
 		}
 
@@ -134,7 +144,7 @@ class WXR_Parser_XML {
 			case 'category':
 				if ( isset( $attr['domain'], $attr['nicename'] ) ) {
 					if ( false === $this->sub_data ) {
-						$this->sub_data = array();
+						$this->sub_data = [];
 					}
 
 					$this->sub_data['domain'] = $attr['domain'];
@@ -196,10 +206,10 @@ class WXR_Parser_XML {
 				$this->sub_data = false;
 				break;
 			case 'wp:commentmeta':
-				$this->sub_data['commentmeta'][] = array(
+				$this->sub_data['commentmeta'][] = [
 					'key'   => $this->sub_data['key'],
 					'value' => $this->sub_data['value'],
-				);
+				];
 				break;
 			case 'category':
 				if ( ! empty( $this->sub_data ) ) {
@@ -253,14 +263,14 @@ class WXR_Parser_XML {
 			default:
 				if ( $this->in_sub_tag ) {
 					if ( false === $this->sub_data ) {
-						$this->sub_data = array();
+						$this->sub_data = [];
 					}
 
 					$this->sub_data[ $this->in_sub_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';
 					$this->in_sub_tag                    = false;
 				} elseif ( $this->in_tag ) {
 					if ( false === $this->data ) {
-						$this->data = array();
+						$this->data = [];
 					}
 
 					$this->data[ $this->in_tag ] = ! empty( $this->cdata ) ? $this->cdata : '';

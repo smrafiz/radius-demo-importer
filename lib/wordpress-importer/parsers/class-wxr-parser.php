@@ -2,18 +2,17 @@
 /**
  * WordPress eXtended RSS file parser implementations
  *
- * @package WordPress
- * @subpackage Importer
+ * @package RT\DemoImporter
  */
 
 /**
  * WordPress Importer class for managing parsing of WXR files.
  */
-class WXR_Parser {
+class RTDI_WXR_Parser {
 	function parse( $file ) {
 		// Attempt to use proper XML parsers first
 		if ( extension_loaded( 'simplexml' ) ) {
-			$parser = new WXR_Parser_SimpleXML;
+			$parser = new RTDI_WXR_Parser_SimpleXML();
 			$result = $parser->parse( $file );
 
 			// If SimpleXML succeeds or this is an invalid WXR file then return the results
@@ -21,7 +20,7 @@ class WXR_Parser {
 				return $result;
 			}
 		} elseif ( extension_loaded( 'xml' ) ) {
-			$parser = new WXR_Parser_XML;
+			$parser = new RTDI_WXR_Parser_XML();
 			$result = $parser->parse( $file );
 
 			// If XMLParser succeeds or this is an invalid WXR file then return the results
@@ -42,12 +41,13 @@ class WXR_Parser {
 				echo $error[0] . ':' . $error[1] . ' ' . esc_html( $error[2] );
 			}
 			echo '</pre>';
-			echo '<p><strong>' . __( 'There was an error when reading this WXR file', 'wordpress-importer' ) . '</strong><br />';
-			echo __( 'Details are shown above. The importer will now try again with a different parser...', 'wordpress-importer' ) . '</p>';
+			echo '<p><strong>' . __( 'There was an error when reading this WXR file', 'radius-demo-importer' ) . '</strong><br />';
+			echo __( 'Details are shown above. The importer will now try again with a different parser...', 'radius-demo-importer' ) . '</p>';
 		}
 
 		// use regular expressions if nothing else available or this is bad XML
-		$parser = new WXR_Parser_Regex;
+		$parser = new RTDI_WXR_Parser_Regex();
+
 		return $parser->parse( $file );
 	}
 }
