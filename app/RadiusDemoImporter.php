@@ -143,7 +143,6 @@ final class RadiusDemoImporter {
 			$services[] = Controllers\Admin::class;
 		}
 
-		$services[] = Controllers\Ajax::class;
 		$services[] = Controllers\Importer::class;
 		$services[] = Controllers\Scripts::class;
 		$services[] = Controllers\Hooks\ActionHooks::class;

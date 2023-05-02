@@ -15,6 +15,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'This script cannot be accessed directly.' );
 }
+
+use RT\DemoImporter\Helpers\Fns;
+
 ?>
 
 <div class="wrap rtdi-demo-importer-wrapper">
@@ -29,17 +32,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$tags         = [];
 				$pageBuilders = [];
 
-				foreach ( $themeConfig as $demo_slug => $demo_pack ) {
-					if ( isset( $demo_pack['tags'] ) && is_array( $demo_pack['tags'] ) ) {
-						foreach ( $demo_pack['tags'] as $key => $tag ) {
+				foreach ( $themeConfig as $demoSlug => $demoPack ) {
+					if ( isset( $demoPack['tags'] ) && is_array( $demoPack['tags'] ) ) {
+						foreach ( $demoPack['tags'] as $key => $tag ) {
 							$tags[ $key ] = $tag;
 						}
 					}
 				}
 
-				foreach ( $themeConfig as $demo_slug => $demo_pack ) {
-					if ( isset( $demo_pack['pageBuilder'] ) && is_array( $demo_pack['pageBuilder'] ) ) {
-						foreach ( $demo_pack['pageBuilder'] as $key => $pageBuilder ) {
+				foreach ( $themeConfig as $demoSlug => $demoPack ) {
+					if ( isset( $demoPack['pageBuilder'] ) && is_array( $demoPack['pageBuilder'] ) ) {
+						foreach ( $demoPack['pageBuilder'] as $key => $pageBuilder ) {
 							$pageBuilders[ $key ] = $pageBuilder;
 						}
 					}
@@ -52,46 +55,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 					?>
 					<div class="rtdi-row">
 						<div class="rtdi-tab-filter rtdi-clearfix rtdi-col-xs-12">
-						<?php
-						if ( ! empty( $tags ) ) {
-							?>
-							<div class="rtdi-tab-group rtdi-tag-group" data-filter-group="tag">
-								<div class="rtdi-tab" data-filter="*">
-									<?php esc_html_e( 'All', 'radius-demo-importer' ); ?>
-								</div>
-								<?php
-								foreach ( $tags as $key => $value ) {
-									?>
-									<div class="rtdi-tab" data-filter=".<?php echo esc_attr( $key ); ?>">
-										<?php echo esc_html( $value ); ?>
+							<?php
+							if ( ! empty( $tags ) ) {
+								?>
+								<div class="rtdi-tab-group rtdi-tag-group" data-filter-group="tag">
+									<div class="rtdi-tab" data-filter="*">
+										<?php esc_html_e( 'All', 'radius-demo-importer' ); ?>
 									</div>
 									<?php
-								}
-								?>
-							</div>
-							<?php
-						}
+									foreach ( $tags as $key => $value ) {
+										?>
+										<div class="rtdi-tab" data-filter=".<?php echo esc_attr( $key ); ?>">
+											<?php echo esc_html( $value ); ?>
+										</div>
+										<?php
+									}
+									?>
+								</div>
+								<?php
+							}
 
-						if ( ! empty( $pageBuilders ) ) {
-							?>
-							<div class="rtdi-tab-group rtdi-pageBuilder-group" data-filter-group="pageBuilder">
-								<div class="rtdi-tab" data-filter="*">
-									<?php esc_html_e( 'All', 'radius-demo-importer' ); ?>
-								</div>
-								<?php
-								foreach ( $pageBuilders as $key => $value ) {
-									?>
-									<div class="rtdi-tab" data-filter=".<?php echo esc_attr( $key ); ?>">
-										<?php echo esc_html( $value ); ?>
+							if ( ! empty( $pageBuilders ) ) {
+								?>
+								<div class="rtdi-tab-group rtdi-pageBuilder-group" data-filter-group="pageBuilder">
+									<div class="rtdi-tab" data-filter="*">
+										<?php esc_html_e( 'All', 'radius-demo-importer' ); ?>
 									</div>
 									<?php
-								}
-								?>
-							</div>
-							<?php
-						}
-						?>
-					</div>
+									foreach ( $pageBuilders as $key => $value ) {
+										?>
+										<div class="rtdi-tab" data-filter=".<?php echo esc_attr( $key ); ?>">
+											<?php echo esc_html( $value ); ?>
+										</div>
+										<?php
+									}
+									?>
+								</div>
+								<?php
+							}
+							?>
+						</div>
 					</div>
 					<?php
 				}
@@ -100,25 +103,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="rtdi-demo-cards rtdi-row theme-browser">
 					<div class="themes">
 						<?php
-						foreach ( $themeConfig as $demo_slug => $demo_pack ) {
+						foreach ( $themeConfig as $demoSlug => $demoPack ) {
 							$tags         = '';
 							$pageBuilders = '';
 							$class        = '';
 
-							if ( isset( $demo_pack['tags'] ) ) {
-								$tags = implode( ' ', array_keys( $demo_pack['tags'] ) );
+							if ( isset( $demoPack['tags'] ) ) {
+								$tags = implode( ' ', array_keys( $demoPack['tags'] ) );
 							}
 
-							if ( isset( $demo_pack['pageBuilder'] ) ) {
-								$pageBuilders = implode( ' ', array_keys( $demo_pack['pageBuilder'] ) );
+							if ( isset( $demoPack['pageBuilder'] ) ) {
+								$pageBuilders = implode( ' ', array_keys( $demoPack['pageBuilder'] ) );
 							}
 
 							$classes = $tags . ' ' . $pageBuilders;
 
-							$type = ! empty( $demo_pack['type'] ) ? $demo_pack['type'] : 'free';
+							$type = ! empty( $demoPack['type'] ) ? $demoPack['type'] : 'free';
 							?>
-							<div id="<?php echo esc_attr( $demo_slug ); ?>"
-							     class="rtdi-demo-card theme rtdi-col-sm-12 rtdi-col-md-6 rtdi-col-lg-24 <?php echo esc_attr( $classes ); ?>">
+							<div id="<?php echo esc_attr( $demoSlug ); ?>"
+								 class="rtdi-demo-card theme rtdi-col-sm-12 rtdi-col-md-6 rtdi-col-lg-24 <?php echo esc_attr( $classes ); ?>">
 								<?php
 								if ( 'pro' === $type ) {
 									?>
@@ -127,25 +130,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 								}
 								?>
 								<div class="theme-screenshot">
-									<img src="<?php echo esc_url( $demo_pack['image'] ); ?> " alt="Demo Screenshot">
+									<img src="<?php echo esc_url( $demoPack['image'] ); ?> " alt="Demo Screenshot">
 								</div>
-								<button href="<?php echo esc_url( $demo_pack['preview_url'] ); ?>" target="_blank" class="more-details">
+								<button href="<?php echo esc_url( $demoPack['previewUrl'] ); ?>" target="_blank"
+										class="more-details">
 									<?php echo esc_html__( 'Preview', 'radius-demo-importer' ); ?>
 								</button>
 
 								<div class="rtdi-demo-actions theme-id-container">
-									<h2 class="theme-name"><?php echo esc_html( $demo_pack['name'] ); ?></h2>
+									<h2 class="theme-name"><?php echo esc_html( $demoPack['name'] ); ?></h2>
 
 									<div class="rtdi-demo-buttons">
 										<?php
 										if ( 'pro' === $type ) {
-											$buy_url = ! empty( $demo_pack['buy_url'] ) ? $demo_pack['buy_url'] : '#';
+											$buyUrl = ! empty( $demoPack['buy_url'] ) ? $demoPack['buy_url'] : '#';
 											?>
-											<a target="_blank" href="<?php echo esc_url( $buy_url ); ?>" class="button button-primary">
+											<a target="_blank" href="<?php echo esc_url( $buyUrl ); ?>"
+											   class="button button-primary">
 												<?php echo esc_html__( 'Buy Now', 'radius-demo-importer' ); ?>
 											</a>
 										<?php } else { ?>
-											<a href="#rtdi-modal-<?php echo esc_attr( $demo_slug ); ?>"
+											<a href="#rtdi-modal-<?php echo esc_attr( $demoSlug ); ?>"
 											   class="rtdi-modal-button button button-primary">
 												<?php echo esc_html__( 'Install', 'radius-demo-importer' ); ?>
 											</a>
@@ -180,9 +185,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="rtdi-modal-content">
 		<?php
 		if ( is_array( $themeConfig ) && ! empty( $themeConfig ) ) {
-			foreach ( $themeConfig as $demo_slug => $demo_pack ) {
+			foreach ( $themeConfig as $demoSlug => $demoPack ) {
 				?>
-				<div id="rtdi-modal-<?php echo esc_attr( $demo_slug ); ?>" class="rtdi-modal" style="display: none;">
+				<div id="rtdi-modal-<?php echo esc_attr( $demoSlug ); ?>" class="rtdi-modal" style="display: none;">
 
 					<div class="rtdi-modal-header">
 						<h2>
@@ -190,7 +195,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							printf(
 							/* translators: Demo Name */
 								esc_html__( 'Import %s Demo', 'radius-demo-importer' ),
-								esc_html( $demo_pack['name'] )
+								esc_html( $demoPack['name'] )
 							);
 							?>
 						</h2>
@@ -210,7 +215,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<h4><?php esc_html_e( 'Required Plugins', 'radius-demo-importer' ); ?></h4>
 							<p><?php esc_html_e( 'For your website to look exactly like the demo,the import process will install and activate the following plugin if they are not installed or activated.', 'radius-demo-importer' ); ?></p>
 							<?php
-							$plugins = ! empty( $demo_pack['plugins'] ) ? $demo_pack['plugins'] : '';
+							$plugins = ! empty( $demoPack['plugins'] ) ? $demoPack['plugins'] : '';
 
 							if ( is_array( $plugins ) ) {
 								?>
@@ -218,19 +223,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 									<?php
 									foreach ( $plugins as $plugin ) {
 										$name   = ! empty( $plugin['name'] ) ? $plugin['name'] : '';
-										//$status = RTDI_Demo_Importer::plugin_active_status( $plugin['file_path'] );
-										$status = '';
+										$status = Fns::pluginActivationStatus( $plugin['filePath'] );
 										if ( 'active' === $status ) {
-											$plugin_class = '<span class="dashicons dashicons-yes-alt"></span>';
+											$pluginClass = '<span class="dashicons dashicons-yes-alt"></span>';
 										} elseif ( 'inactive' === $status ) {
-											$plugin_class = '<span class="dashicons dashicons-warning"></span>';
+											$pluginClass = '<span class="dashicons dashicons-warning"></span>';
 										} else {
-											$plugin_class = '<span class="dashicons dashicons-dismiss"></span>';
+											$pluginClass = '<span class="dashicons dashicons-dismiss"></span>';
 										}
 										?>
 										<li class="rtdi-<?php echo esc_attr( $status ); ?>">
 											<?php
-											//echo wp_kses_post( $plugin_class ) . ' ' . esc_html( $name ) . ' - <i>' . esc_html( $this->get_plugin_status( $status ) ) . '</i>';
+											echo wp_kses_post( $pluginClass ) . ' ' . esc_html( $name ) . ' - <i>' . esc_html( Fns::getPluginStatus( $status ) ) . '</i>';
 											?>
 										</li>
 										<?php
@@ -252,7 +256,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<h4><?php esc_html_e( 'Exclude Images', 'radius-demo-importer' ); ?></h4>
 							<p><?php esc_html_e( 'Check this option if importing demo fails multiple times. Excluding image will make the demo import process super quick.', 'radius-demo-importer' ); ?></p>
 							<label>
-								<input id="checkbox-exclude-image-<?php echo esc_attr( $demo_slug ); ?>" type="checkbox" value='1'/>
+								<input id="checkbox-exclude-image-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox"
+									   value='1'/>
 								<?php echo esc_html__( 'Yes, Exclude Images', 'radius-demo-importer' ); ?>
 							</label>
 						</div>
@@ -262,13 +267,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p><?php esc_html_e( 'Reseting the website will delete all your post, pages, custom post types, categories, taxonomies, images and all other customizer and theme option settings.', 'radius-demo-importer' ); ?></p>
 							<p><?php esc_html_e( 'It is always recommended to reset the database for a complete demo import.', 'radius-demo-importer' ); ?></p>
 							<label class="rtdi-reset-website-checkbox">
-								<input id="checkbox-reset-<?php echo esc_attr( $demo_slug ); ?>" type="checkbox" value='1' checked="checked"/>
+								<input id="checkbox-reset-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox"
+									   value='1' checked="checked"/>
 								<?php echo esc_html__( 'Reset Website - Check this box only if you are sure to reset the website.', 'radius-demo-importer' ); ?>
 							</label>
 						</div>
 
-						<a href="javascript:void(0)" data-demo-slug="<?php echo esc_attr( $demo_slug ); ?>" class="button button-primary rtdi-import-demo"><?php esc_html_e( 'Import Demo', 'radius-demo-importer' ); ?></a>
-						<a href="javascript:void(0)" class="button rtdi-modal-cancel"><?php esc_html_e( 'Cancel', 'radius-demo-importer' ); ?></a>
+						<a href="javascript:void(0)" data-demo-slug="<?php echo esc_attr( $demoSlug ); ?>"
+						   class="button button-primary rtdi-import-demo"><?php esc_html_e( 'Import Demo', 'radius-demo-importer' ); ?></a>
+						<a href="javascript:void(0)"
+						   class="button rtdi-modal-cancel"><?php esc_html_e( 'Cancel', 'radius-demo-importer' ); ?></a>
 					</div>
 				</div>
 				<?php
