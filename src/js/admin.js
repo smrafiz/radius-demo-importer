@@ -163,7 +163,6 @@
 							}
 						},
 						error: function (xhr, status, error) {
-							console.log(error)
 							var errorMessage = xhr.status + ': ' + xhr.statusText
 							$('#rtdi-import-progress .rtdi-import-progress-message').html(rtdiAdminParams.importError);
 							$('#rtdi-import-progress').addClass('import-error');

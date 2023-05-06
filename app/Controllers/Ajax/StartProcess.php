@@ -43,26 +43,22 @@ class StartProcess extends Ajax {
 	public function start() {
 		Fns::verifyAjaxCall();
 
+		$resetCheck = isset( $_POST['reset'] ) && 'true' === $_POST['reset'];
+
 		// Resetting database.
-		if ( isset( $_POST['reset'] ) && 'true' === $_POST['reset'] ) {
+		if ( $resetCheck ) {
 			$this->databaseReset();
-			$this->response['completedMessage'] = esc_html__( 'Database reset completed', 'radius-demo-importer' );
 		}
 
 		\do_action( 'rtdi/importer/start' );
 
-		$this->prepareResponse(
+		// Response.
+		$this->response(
 			'rtdi_install_plugins',
-			esc_html__( 'Installing required plugins', 'radius-demo-importer' )
+			esc_html__( 'Installing required plugins', 'radius-demo-importer' ),
+			( $resetCheck ) ? esc_html__( 'Database reset completed', 'radius-demo-importer' ) : ''
 		);
-
-		// Send response.
-		$this->sendResponse();
 	}
-
-	/*
-	* Reset the database, if the case
-	*/
 
 	/**
 	 * Database reset.

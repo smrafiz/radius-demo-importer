@@ -66,18 +66,26 @@ class Ajax {
 	/**
 	 * Prepare ajax response.
 	 *
-	 * @param string $phase Next step.
-	 * @param string $message Next step message.
+	 * @param string $nextPhase Next phase.
+	 * @param string $nextPhaseMessage Next phase message.
+	 * @param string $complete Completed message.
+	 * @param bool   $error Error.
+	 * @param string $errorMessage Error message.
 	 *
-	 * @return array
+	 * @return void
 	 */
-	public function prepareResponse( $phase, $message ) {
-		$this->response['demo']             = $this->demoSlug;
-		$this->response['excludeImages']    = $this->excludeImages;
-		$this->response['nextPhase']        = $phase;
-		$this->response['nextPhaseMessage'] = $message;
+	public function response( $nextPhase, $nextPhaseMessage, $complete = '', $error = false, $errorMessage = '' ) {
+		$this->response = [
+			'demo'             => $this->demoSlug,
+			'excludeImages'    => $this->excludeImages,
+			'nextPhase'        => $nextPhase,
+			'nextPhaseMessage' => $nextPhaseMessage,
+			'completedMessage' => $complete,
+			'error'            => $error,
+			'errorMessage'     => $errorMessage,
+		];
 
-		return $this->response;
+		$this->sendResponse();
 	}
 
 	/**
@@ -85,7 +93,7 @@ class Ajax {
 	 *
 	 * @return void
 	 */
-	public function sendResponse() {
+	private function sendResponse() {
 		$json = wp_json_encode( $this->response );
 
 		wp_send_json( $json );
@@ -100,5 +108,23 @@ class Ajax {
 	 */
 	public function demoUploadDir( $path = '' ) {
 		return $this->uploadsDir['basedir'] . '/demo-pack/' . $path;
+	}
+
+	/**
+	 * Before import action.
+	 *
+	 * @return void
+	 */
+	public function beforeImportActions() {
+		\do_action( 'rtdi/before/import' );
+	}
+
+	/**
+	 * After import action.
+	 *
+	 * @return void
+	 */
+	public function afterImportActions() {
+		\do_action( 'rtdi/after/import' );
 	}
 }

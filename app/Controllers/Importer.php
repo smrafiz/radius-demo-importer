@@ -20,13 +20,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Importer extends Controller {
 	/**
-	 * Theme demo config.
-	 *
-	 * @var array
-	 */
-	public $config = [];
-
-	/**
 	 * Singleton Trait.
 	 */
 	use SingletonTrait;
@@ -41,39 +34,17 @@ class Importer extends Controller {
 			return;
 		}
 
-		// Theme Config.
-		$this->config = radiusDemoImporter()->config;
-
-		// Before import actions.
-		$this->beforeImportActions();
-
 		// Services.
 		$this->classes[] = Ajax\StartProcess::class;
 		$this->classes[] = Ajax\InstallPlugins::class;
+		$this->classes[] = Ajax\DownloadFiles::class;
+		$this->classes[] = Ajax\InstallDemo::class;
+		$this->classes[] = Ajax\CustomizerImport::class;
+		$this->classes[] = Ajax\ImportMenus::class;
+		$this->classes[] = Ajax\ImportSettings::class;
 		// $this->classes[] = Importer\CustomizerImporter::class;
 		// $this->classes[] = Importer\WidgetsImporter::class;
 
-		// After import actions.
-		$this->afterImportActions();
-
 		return $this->classes;
-	}
-
-	/**
-	 * Before import action.
-	 *
-	 * @return void
-	 */
-	public function beforeImportActions() {
-		\do_action( 'rtdi/before/import', $this );
-	}
-
-	/**
-	 * After import action.
-	 *
-	 * @return void
-	 */
-	public function afterImportActions() {
-		\do_action( 'rtdi/after/import', $this );
 	}
 }

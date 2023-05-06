@@ -8,7 +8,6 @@
 namespace RT\DemoImporter\Controllers\Admin;
 
 use RT\DemoImporter\Helpers\Fns;
-use RT\DemoImporter\Model\ThemeConfig;
 use RT\DemoImporter\Traits\SingletonTrait;
 
 // Do not allow directly accessing this file.
@@ -32,6 +31,7 @@ class AdminMenu {
 	 */
 	public function register() {
 		add_action( 'admin_menu', [ $this, 'registerAdminMenu' ] );
+		add_action( 'admin_init', [ $this, 'removeAllNotices' ] );
 	}
 
 	/**
@@ -62,5 +62,18 @@ class AdminMenu {
 		$themeConfig = radiusDemoImporter()->config;
 
 		Fns::renderView( 'demo-import', [ 'themeConfig' => $themeConfig ] );
+	}
+
+	/**
+	 * Remove all admin notices from the demo import page.
+	 *
+	 * @return void
+	 */
+	public function removeAllNotices() {
+		global $pagenow;
+
+		if ( 'themes.php' === $pagenow && isset( $_GET['page'] ) && ( 'rtdi-demo-importer' === $_GET['page'] || 'rt-demo-importer-status' === $_GET['page'] ) ) {
+			remove_all_actions( 'admin_notices' );
+		}
 	}
 }

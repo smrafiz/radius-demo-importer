@@ -44,10 +44,6 @@ class InstallPlugins extends Ajax {
 	 * @return void
 	 */
 	public function register() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
 		parent::register();
 
 		$this->installCount = 0;
@@ -68,21 +64,12 @@ class InstallPlugins extends Ajax {
 		// Install Required Plugins.
 		$this->installPlugins( $this->demoSlug );
 
-		$installCount = $this->installCount;
-
-		if ( $installCount > 0 ) {
-			$this->response['completedMessage'] = esc_html__( 'All the required plugins installed', 'radius-demo-importer' );
-		} else {
-			$this->response['completedMessage'] = esc_html__( 'No plugin required to install', 'radius-demo-importer' );
-		}
-
-		$this->prepareResponse(
+		// Response.
+		$this->response(
 			'rtdi_activate_plugins',
-			esc_html__( 'Activating required plugins', 'radius-demo-importer' )
+			esc_html__( 'Activating required plugins', 'radius-demo-importer' ),
+			$this->installCount > 0 ? esc_html__( 'All the required plugins installed', 'radius-demo-importer' ) : esc_html__( 'No plugin required to install', 'radius-demo-importer' )
 		);
-
-		// Send response.
-		$this->sendResponse();
 	}
 
 	/**
@@ -96,21 +83,12 @@ class InstallPlugins extends Ajax {
 		// Activate Required Plugins.
 		$this->activatePlugins( $this->demoSlug );
 
-		$activeCount = $this->activeCount;
-
-		if ( $activeCount > 0 ) {
-			$this->response['completedMessage'] = esc_html__( 'All the required plugins activated', 'radius-demo-importer' );
-		} else {
-			$this->response['completedMessage'] = esc_html__( 'No plugin required to activate', 'radius-demo-importer' );
-		}
-
-		$this->prepareResponse(
-			'rtdi_download_files',
-			esc_html__( 'Downloading demo files', 'radius-demo-importer' )
+		// Response.
+		$this->response(
+			'rtdi_download_demo_files',
+			esc_html__( 'Downloading demo files', 'radius-demo-importer' ),
+			$this->activeCount > 0 ? esc_html__( 'All the required plugins activated', 'radius-demo-importer' ) : esc_html__( 'No plugin required to activate', 'radius-demo-importer' )
 		);
-
-		// Send response.
-		$this->sendResponse();
 	}
 
 	/**
@@ -297,13 +275,14 @@ class InstallPlugins extends Ajax {
 			$wp_filesystem->mkdir( $this->demoUploadDir() );
 			$wp_filesystem->put_contents( $plugin, $file );
 
+			// Unzip file.
 			unzip_file( $plugin, WP_PLUGIN_DIR );
 
 			$plugin_file = WP_PLUGIN_DIR . '/' . esc_html( $path );
 
+			// Delete zip.
 			$wp_filesystem->delete( $plugin );
 
-//			$this->activatePlugin( $path );
 			$this->installCount ++;
 		}
 	}
