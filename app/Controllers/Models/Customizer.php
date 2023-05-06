@@ -28,7 +28,7 @@ class Customizer {
 	 *
 	 * @return void
 	 */
-	public static function import( $customizerFile, $excludeImages ) {
+	public function import( $customizerFile, $excludeImages ) {
 		global $wp_customize;
 
 		$template      = get_template();
@@ -56,7 +56,7 @@ class Customizer {
 
 		// Import Images.
 		if ( ! $excludeImages ) {
-			$data['mods'] = self::importImages( $data['mods'] );
+			$data['mods'] = $this->importImages( $data['mods'] );
 		}
 
 		// Import custom options.
@@ -102,17 +102,17 @@ class Customizer {
 	 *
 	 * @return array
 	 */
-	private static function importImages( $mods ) {
+	private function importImages( $mods ) {
 		foreach ( $mods as $key => $value ) {
 
 			// For repeater fields.
-			if ( self::isJSON( $value ) ) {
+			if ( $this->isJSON( $value ) ) {
 				$dataArray = json_decode( $value );
 
 				foreach ( $dataArray as $dataKey => $dataObject ) {
 					foreach ( $dataObject as $subDataKey => $subDataValue ) {
-						if ( self::isImageUrl( $subDataValue ) ) {
-							$subData = self::mediaHandleSideload( $subDataValue );
+						if ( $this->isImageUrl( $subDataValue ) ) {
+							$subData = $this->mediaHandleSideload( $subDataValue );
 
 							if ( ! is_wp_error( $subData ) ) {
 								$dataObject->$subDataKey = $subData->url;
@@ -126,8 +126,8 @@ class Customizer {
 				}
 
 				$mods[ $key ] = json_encode( $dataArray );
-			} elseif ( self::isImageUrl( $value ) ) {
-				$data = self::mediaHandleSideload( $value );
+			} elseif ( $this->isImageUrl( $value ) ) {
+				$data = $this->mediaHandleSideload( $value );
 
 				if ( ! is_wp_error( $data ) ) {
 					$mods[ $key ] = $data->url;
@@ -152,7 +152,7 @@ class Customizer {
 	 *
 	 * @return bool|int|\stdClass|string|\WP_Error
 	 */
-	private static function mediaHandleSideload( $file ) {
+	private function mediaHandleSideload( $file ) {
 		$data = new \stdClass();
 
 		if ( ! function_exists( 'media_handle_sideload' ) ) {
@@ -205,7 +205,7 @@ class Customizer {
 	 *
 	 * @return bool
 	 */
-	private static function isImageUrl( $url ) {
+	private function isImageUrl( $url ) {
 		if ( is_string( $url ) && preg_match( '/\.(jpg|jpeg|png|gif|svg)/i', $url ) ) {
 			return true;
 		}
@@ -220,7 +220,7 @@ class Customizer {
 	 *
 	 * @return bool
 	 */
-	private static function isJSON( $string ) {
+	private function isJSON( $string ) {
 		return is_string( $string ) && is_array( json_decode( $string, true ) );
 	}
 }

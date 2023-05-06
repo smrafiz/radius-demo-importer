@@ -52,7 +52,7 @@ class CustomizerImport extends Ajax {
 			ob_start();
 
 			// Import customizer data.
-			Customizer::import( $customizerFilePath, $this->excludeImages );
+			( new Customizer() )->import( $customizerFilePath, $this->excludeImages );
 
 			ob_end_clean();
 		}

@@ -42,8 +42,7 @@ class Importer extends Controller {
 		$this->classes[] = Ajax\CustomizerImport::class;
 		$this->classes[] = Ajax\ImportMenus::class;
 		$this->classes[] = Ajax\ImportSettings::class;
-		// $this->classes[] = Importer\CustomizerImporter::class;
-		// $this->classes[] = Importer\WidgetsImporter::class;
+		$this->classes[] = Ajax\ImportWidgets::class;
 
 		return $this->classes;
 	}
