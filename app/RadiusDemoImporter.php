@@ -77,9 +77,9 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function initHooks() {
-		\add_action( 'plugins_loaded', [ $this, 'onPluginsLoaded' ], - 1 );
-		\add_action( 'init', [ $this, 'register' ], 0 );
-		\add_action( 'after_setup_theme', [ $this, 'getDemoConfig' ] );
+		add_action( 'plugins_loaded', [ $this, 'onPluginsLoaded' ], - 1 );
+		add_action( 'init', [ $this, 'register' ], 0 );
+		add_action( 'after_setup_theme', [ $this, 'getDemoConfig' ] );
 	}
 
 	/**
@@ -97,7 +97,7 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function onPluginsLoaded() {
-		\do_action( 'rtdi/plugin/loaded' );
+		do_action( 'rtdi/plugin/loaded' );
 	}
 
 	/**
@@ -106,7 +106,7 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function register() {
-		\do_action( 'rtdi/before/register' );
+		do_action( 'rtdi/before/register' );
 
 		// Define the locale.
 		$this->setLocale();
@@ -114,7 +114,7 @@ final class RadiusDemoImporter {
 		// Init services.
 		Fns::initServices( $this->getServices() );
 
-		\do_action( 'rtdi/after/register' );
+		do_action( 'rtdi/after/register' );
 	}
 
 	/**
@@ -124,7 +124,7 @@ final class RadiusDemoImporter {
 	 * @since 1.0.0
 	 */
 	public function setLocale() {
-		\load_plugin_textdomain(
+		load_plugin_textdomain(
 			'radius-demo-importer',
 			false,
 			dirname( plugin_basename( RTDI_FILE ) ) . '/languages/'
@@ -139,7 +139,7 @@ final class RadiusDemoImporter {
 	public function getServices() {
 		$services = [];
 
-		if ( \is_admin() ) {
+		if ( is_admin() ) {
 			$services[] = Controllers\Admin::class;
 		}
 
@@ -148,7 +148,7 @@ final class RadiusDemoImporter {
 		$services[] = Controllers\Hooks\ActionHooks::class;
 		$services[] = Controllers\Hooks\FilterHooks::class;
 
-		return \apply_filters( 'rtdi/service/classes', $services );
+		return apply_filters( 'rtdi/service/classes', $services );
 	}
 
 	/**

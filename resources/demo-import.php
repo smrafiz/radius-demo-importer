@@ -11,13 +11,12 @@
  * @var $themeConfig   array
  */
 
+use RT\DemoImporter\Helpers\Fns;
+
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'This script cannot be accessed directly.' );
 }
-
-use RT\DemoImporter\Helpers\Fns;
-
 ?>
 
 <div class="wrap rtdi-demo-importer-wrapper">
@@ -120,8 +119,7 @@ use RT\DemoImporter\Helpers\Fns;
 
 							$type = ! empty( $demoPack['type'] ) ? $demoPack['type'] : 'free';
 							?>
-							<div id="<?php echo esc_attr( $demoSlug ); ?>"
-								 class="rtdi-demo-card theme rtdi-col-sm-12 rtdi-col-md-6 rtdi-col-lg-24 <?php echo esc_attr( $classes ); ?>">
+							<div id="<?php echo esc_attr( $demoSlug ); ?>" class="rtdi-demo-card theme rtdi-col-sm-12 rtdi-col-md-6 rtdi-col-lg-24 <?php echo esc_attr( $classes ); ?>">
 								<?php
 								if ( 'pro' === $type ) {
 									?>
@@ -145,13 +143,11 @@ use RT\DemoImporter\Helpers\Fns;
 										if ( 'pro' === $type ) {
 											$buyUrl = ! empty( $demoPack['buy_url'] ) ? $demoPack['buy_url'] : '#';
 											?>
-											<a target="_blank" href="<?php echo esc_url( $buyUrl ); ?>"
-											   class="button button-primary">
+											<a target="_blank" href="<?php echo esc_url( $buyUrl ); ?>" class="button button-primary">
 												<?php echo esc_html__( 'Buy Now', 'radius-demo-importer' ); ?>
 											</a>
 										<?php } else { ?>
-											<a href="#rtdi-modal-<?php echo esc_attr( $demoSlug ); ?>"
-											   class="rtdi-modal-button button button-primary">
+											<a href="#rtdi-modal-<?php echo esc_attr( $demoSlug ); ?>" class="rtdi-modal-button button button-primary">
 												<?php echo esc_html__( 'Install', 'radius-demo-importer' ); ?>
 											</a>
 											<?php
@@ -256,8 +252,7 @@ use RT\DemoImporter\Helpers\Fns;
 							<h4><?php esc_html_e( 'Exclude Images', 'radius-demo-importer' ); ?></h4>
 							<p><?php esc_html_e( 'Check this option if importing demo fails multiple times. Excluding image will make the demo import process super quick.', 'radius-demo-importer' ); ?></p>
 							<label>
-								<input id="checkbox-exclude-image-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox"
-									   value='1'/>
+								<input id="checkbox-exclude-image-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox" value='1'/>
 								<?php echo esc_html__( 'Yes, Exclude Images', 'radius-demo-importer' ); ?>
 							</label>
 						</div>
@@ -267,16 +262,13 @@ use RT\DemoImporter\Helpers\Fns;
 							<p><?php esc_html_e( 'Reseting the website will delete all your post, pages, custom post types, categories, taxonomies, images and all other customizer and theme option settings.', 'radius-demo-importer' ); ?></p>
 							<p><?php esc_html_e( 'It is always recommended to reset the database for a complete demo import.', 'radius-demo-importer' ); ?></p>
 							<label class="rtdi-reset-website-checkbox">
-								<input id="checkbox-reset-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox"
-									   value='1' checked="checked"/>
+								<input id="checkbox-reset-<?php echo esc_attr( $demoSlug ); ?>" type="checkbox" value='1' checked="checked"/>
 								<?php echo esc_html__( 'Reset Website - Check this box only if you are sure to reset the website.', 'radius-demo-importer' ); ?>
 							</label>
 						</div>
 
-						<a href="javascript:void(0)" data-demo-slug="<?php echo esc_attr( $demoSlug ); ?>"
-						   class="button button-primary rtdi-import-demo"><?php esc_html_e( 'Import Demo', 'radius-demo-importer' ); ?></a>
-						<a href="javascript:void(0)"
-						   class="button rtdi-modal-cancel"><?php esc_html_e( 'Cancel', 'radius-demo-importer' ); ?></a>
+						<a href="javascript:void(0)" data-demo-slug="<?php echo esc_attr( $demoSlug ); ?>" class="button button-primary rtdi-import-demo"><?php esc_html_e( 'Import Demo', 'radius-demo-importer' ); ?></a>
+						<a href="javascript:void(0)" class="button rtdi-modal-cancel"><?php esc_html_e( 'Cancel', 'radius-demo-importer' ); ?></a>
 					</div>
 				</div>
 				<?php

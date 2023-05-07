@@ -27,7 +27,7 @@ class Setup {
 		}
 
 		// Clear the permalinks.
-		\flush_rewrite_rules();
+		flush_rewrite_rules();
 	}
 
 	/**
@@ -41,6 +41,6 @@ class Setup {
 		}
 
 		// Clear the permalinks.
-		\flush_rewrite_rules();
+		flush_rewrite_rules();
 	}
 }

@@ -56,39 +56,12 @@ class ImportWidgets extends Ajax {
 			ob_end_clean();
 		}
 
+		$sliderFileExists = file_exists( $this->demoUploadDir( $this->demoSlug ) . '/revslider.zip' );
+
 		$this->response(
-			'',
-			'',
+			$sliderFileExists ? 'rtdi_import_revslider' : 'rtdi_finalize_demo',
+			$sliderFileExists ? esc_html__( 'Importing Revolution slider', 'radius-demo-importer' ) : esc_html__( 'Finalizing demo data', 'radius-demo-importer' ),
 			$fileExists ? esc_html__( 'Widgets imported', 'radius-demo-importer' ) : esc_html__( 'No widgets found', 'radius-demo-importer' )
 		);
-	}
-
-	/**
-	 * Settings menus.
-	 *
-	 * @param array $menus Menu array.
-	 *
-	 * @return void
-	 */
-	private function setMenu( $menus ) {
-		if ( empty( $menus ) ) {
-			return;
-		}
-
-		$locations = get_theme_mod( 'nav_menu_locations' );
-
-		foreach ( $menus as $menuId => $menuName ) {
-			$menuExists = wp_get_nav_menu_object( $menuName );
-
-			if ( ! $menuExists ) {
-				$menuTermId = wp_create_nav_menu( $menuName );
-			} else {
-				$menuTermId = $menuExists->term_id;
-			}
-
-			$locations[ $menuId ] = $menuTermId;
-		}
-
-		set_theme_mod( 'nav_menu_locations', $locations );
 	}
 }

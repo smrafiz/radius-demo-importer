@@ -1,6 +1,6 @@
 <?php
 /**
- * Start Demo Process Ajax Class.
+ * Initialize Demo Process Ajax Class.
  *
  * @package RT\DemoImporter
  */
@@ -16,9 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Start Demo Process Ajax Class.
+ * Initialize Demo Process Ajax Class.
  */
-class StartProcess extends Ajax {
+class Initialize extends Ajax {
 	/**
 	 * Singleton Trait.
 	 */
@@ -50,7 +50,8 @@ class StartProcess extends Ajax {
 			$this->databaseReset();
 		}
 
-		\do_action( 'rtdi/importer/start' );
+		// Init import actions.
+		$this->initImportActions();
 
 		// Response.
 		$this->response(

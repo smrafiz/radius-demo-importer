@@ -40,7 +40,7 @@ class AdminMenu {
 	 * @return void
 	 */
 	public function registerAdminMenu() {
-		\add_submenu_page(
+		add_submenu_page(
 			'themes.php',
 			esc_html__( 'Radius Demo Importer', 'radius-demo-importer' ),
 			esc_html__( 'Install Demo Content', 'radius-demo-importer' ),

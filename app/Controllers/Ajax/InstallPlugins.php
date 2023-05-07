@@ -7,6 +7,8 @@
 
 namespace RT\DemoImporter\Controllers\Ajax;
 
+use Plugin_Upgrader;
+use WP_Ajax_Upgrader_Skin;
 use RT\DemoImporter\Helpers\Fns;
 use RT\DemoImporter\Traits\SingletonTrait;
 
@@ -150,7 +152,7 @@ class InstallPlugins extends Ajax {
 		$pluginPath = WP_PLUGIN_DIR . '/' . $path;
 
 		if ( file_exists( $pluginPath ) ) {
-			$status = \is_plugin_active( $path ) ? 'active' : 'inactive';
+			$status = is_plugin_active( $path ) ? 'active' : 'inactive';
 		}
 
 		return $status;
@@ -176,8 +178,8 @@ class InstallPlugins extends Ajax {
 			// Get Plugin Info.
 			$api = $this->callPluginApi( $slug );
 
-			$skin     = new \WP_Ajax_Upgrader_Skin();
-			$upgrader = new \Plugin_Upgrader( $skin );
+			$skin     = new WP_Ajax_Upgrader_Skin();
+			$upgrader = new Plugin_Upgrader( $skin );
 			$upgrader->install( $api->download_link );
 
 			$this->installCount ++;
@@ -194,7 +196,7 @@ class InstallPlugins extends Ajax {
 	public function callPluginApi( $slug ) {
 		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$pluginApi = \plugins_api(
+		return plugins_api(
 			'plugin_information',
 			[
 				'slug'   => $slug,
@@ -217,8 +219,6 @@ class InstallPlugins extends Ajax {
 				],
 			]
 		);
-
-		return $pluginApi;
 	}
 
 	/**
@@ -230,7 +230,7 @@ class InstallPlugins extends Ajax {
 	 */
 	public function activatePlugin( $path ) {
 		if ( $path ) {
-			$activate = \activate_plugin( $path, '', false, true );
+			$activate = activate_plugin( $path, '', false, true );
 		}
 	}
 

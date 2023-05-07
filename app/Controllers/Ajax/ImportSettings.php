@@ -68,33 +68,4 @@ class ImportSettings extends Ajax {
 			$settingsExists ? esc_html__( 'Theme settings imported', 'radius-demo-importer' ) : esc_html__( 'No theme settings found', 'radius-demo-importer' )
 		);
 	}
-
-	/**
-	 * Settings menus.
-	 *
-	 * @param array $menus Menu array.
-	 *
-	 * @return void
-	 */
-	private function setMenu( $menus ) {
-		if ( empty( $menus ) ) {
-			return;
-		}
-
-		$locations = get_theme_mod( 'nav_menu_locations' );
-
-		foreach ( $menus as $menuId => $menuName ) {
-			$menuExists = wp_get_nav_menu_object( $menuName );
-
-			if ( ! $menuExists ) {
-				$menuTermId = wp_create_nav_menu( $menuName );
-			} else {
-				$menuTermId = $menuExists->term_id;
-			}
-
-			$locations[ $menuId ] = $menuTermId;
-		}
-
-		set_theme_mod( 'nav_menu_locations', $locations );
-	}
 }

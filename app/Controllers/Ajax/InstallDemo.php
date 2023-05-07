@@ -7,6 +7,7 @@
 
 namespace RT\DemoImporter\Controllers\Ajax;
 
+use RTDI_WP_Import;
 use RT\DemoImporter\Helpers\Fns;
 use RT\DemoImporter\Traits\SingletonTrait;
 
@@ -47,6 +48,9 @@ class InstallDemo extends Ajax {
 
 		$fileExists = file_exists( $xmlFile );
 
+		// Init import actions.
+		$this->beforeImportActions( $xmlFile, $this->excludeImages );
+
 		if ( $fileExists ) {
 			$this->importDemoContent( $xmlFile, $this->excludeImages );
 		}
@@ -74,7 +78,7 @@ class InstallDemo extends Ajax {
 			define( 'WP_LOAD_IMPORTERS', true );
 		}
 
-		if ( ! class_exists( 'HDI_Import' ) ) {
+		if ( ! class_exists( 'RTDI_WP_Import' ) ) {
 			$wpImporter = RTDI_PATH . 'lib/wordpress-importer/wordpress-importer.php';
 
 			if ( file_exists( $wpImporter ) ) {
@@ -90,15 +94,14 @@ class InstallDemo extends Ajax {
 			$elementKitSlug = ! empty( $this->config[ $this->demoSlug ]['element_kit_slug'] ) ? $this->config[ $this->demoSlug ]['element_kit_slug'] : '';
 
 			if ( file_exists( $xmlFilePath ) ) {
-				$wp_import                    = new \RTDI_WP_Import();
+				$wp_import                    = new RTDI_WP_Import();
 				$wp_import->fetch_attachments = $excludeImages;
 
-				// Capture the output.
 				ob_start();
 
+				// Import XML.
 				$wp_import->import( $xmlFilePath );
 
-				// Clean the output.
 				ob_end_clean();
 
 				if ( ! $excludeImages ) {

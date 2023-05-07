@@ -29,7 +29,7 @@ class FilterHooks {
 	 * @return void
 	 */
 	public function register() {
-		\add_filter( 'upload_mimes', [ __CLASS__, 'supportedFileTypes' ] );
+		add_filter( 'upload_mimes', [ __CLASS__, 'supportedFileTypes' ] );
 	}
 
 	/**

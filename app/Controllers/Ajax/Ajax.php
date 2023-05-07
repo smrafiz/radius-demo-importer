@@ -111,12 +111,24 @@ class Ajax {
 	}
 
 	/**
-	 * Before import action.
+	 * Init import action.
 	 *
 	 * @return void
 	 */
-	public function beforeImportActions() {
-		\do_action( 'rtdi/before/import' );
+	public function initImportActions() {
+		do_action( 'rtdi/importer/init' );
+	}
+
+	/**
+	 * Before import action.
+	 *
+	 * @param string $xml Demo XML file.
+	 * @param string $excludeImages $exclude images.
+	 *
+	 * @return void
+	 */
+	public function beforeImportActions( $xml, $excludeImages ) {
+		do_action( 'rtdi/importer/before/import', $xml, $excludeImages );
 	}
 
 	/**
@@ -125,6 +137,6 @@ class Ajax {
 	 * @return void
 	 */
 	public function afterImportActions() {
-		\do_action( 'rtdi/after/import' );
+		do_action( 'rtdi/importer/after/import' );
 	}
 }
