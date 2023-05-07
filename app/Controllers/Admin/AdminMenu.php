@@ -59,7 +59,13 @@ class AdminMenu {
 	 * @return void
 	 */
 	public function renderDemoImportPage() {
-		$themeConfig = radiusDemoImporter()->config;
+		$themeConfig     = radiusDemoImporter()->config;
+		$activeTheme     = radiusDemoImporter()->activeTheme();
+		$supportedThemes = radiusDemoImporter()->supportedThemes();
+
+		if ( ! in_array( $activeTheme, $supportedThemes, true ) ) {
+			$themeConfig = [];
+		}
 
 		Fns::renderView( 'demo-import', [ 'themeConfig' => $themeConfig ] );
 	}

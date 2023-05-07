@@ -172,4 +172,25 @@ final class RadiusDemoImporter {
 	public function pluginPath() {
 		return untrailingslashit( plugin_dir_path( RTDI_FILE ) );
 	}
+
+	/**
+	 * Supported Themes.
+	 *
+	 * @return mixed|null
+	 */
+	public function supportedThemes() {
+		return apply_filters(
+			'rtdi/importer/themes',
+			[]
+		);
+	}
+
+	/**
+	 * Get active theme.
+	 *
+	 * @return false|mixed|null
+	 */
+	public function activeTheme() {
+		return get_option( 'stylesheet' );
+	}
 }
