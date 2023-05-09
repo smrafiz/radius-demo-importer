@@ -41,6 +41,13 @@ class InstallPlugins extends Ajax {
 	public $activeCount;
 
 	/**
+	 * Plugins.
+	 *
+	 * @var array
+	 */
+	private $plugins = [];
+
+	/**
 	 * Class Init.
 	 *
 	 * @return void
@@ -50,6 +57,12 @@ class InstallPlugins extends Ajax {
 
 		$this->installCount = 0;
 		$this->activeCount  = 0;
+
+		if ( empty( $this->config['plugins'] ) || empty( $this->config['demoData'][ $this->demoSlug ]['plugins'] ) ) {
+			return;
+		}
+
+		$this->plugins = $this->multiple ? $this->config['demoData'][ $this->demoSlug ]['plugins'] : $this->config['plugins'];
 
 		add_action( 'wp_ajax_rtdi_install_plugins', [ $this, 'installCallback' ] );
 		add_action( 'wp_ajax_rtdi_activate_plugins', [ $this, 'activateCallback' ] );
@@ -64,7 +77,7 @@ class InstallPlugins extends Ajax {
 		Fns::verifyAjaxCall();
 
 		// Install Required Plugins.
-		$this->installPlugins( $this->demoSlug );
+		$this->installPlugins();
 
 		// Response.
 		$this->response(
@@ -83,7 +96,7 @@ class InstallPlugins extends Ajax {
 		Fns::verifyAjaxCall();
 
 		// Activate Required Plugins.
-		$this->activatePlugins( $this->demoSlug );
+		$this->activatePlugins();
 
 		// Response.
 		$this->response(
@@ -96,14 +109,10 @@ class InstallPlugins extends Ajax {
 	/**
 	 * Installing required plugins.
 	 *
-	 * @param string $slug Plugin slug.
-	 *
 	 * @return void
 	 */
-	private function installPlugins( $slug ) {
-		$plugins = $this->config[ $slug ]['plugins'];
-
-		foreach ( $plugins as $pluginSlug => $plugin ) {
+	private function installPlugins() {
+		foreach ( $this->plugins as $pluginSlug => $plugin ) {
 			$name     = ! empty( $plugin['name'] ) ? $plugin['name'] : '';
 			$source   = ! empty( $plugin['source'] ) ? $plugin['source'] : '';
 			$filePath = ! empty( $plugin['filePath'] ) ? $plugin['filePath'] : '';
@@ -120,14 +129,10 @@ class InstallPlugins extends Ajax {
 	/**
 	 * Activating required plugins.
 	 *
-	 * @param string $slug Plugin slug.
-	 *
 	 * @return void
 	 */
-	private function activatePlugins( $slug ) {
-		$plugins = $this->config[ $slug ]['plugins'];
-
-		foreach ( $plugins as $pluginSlug => $plugin ) {
+	private function activatePlugins() {
+		foreach ( $this->plugins as $pluginSlug => $plugin ) {
 			$name         = ! empty( $plugin['name'] ) ? $plugin['name'] : '';
 			$filePath     = ! empty( $plugin['filePath'] ) ? $plugin['filePath'] : '';
 			$pluginStatus = $this->pluginStatus( $filePath );

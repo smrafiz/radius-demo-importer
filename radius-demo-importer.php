@@ -34,7 +34,7 @@ if ( file_exists( dirname( __FILE__ ) . '/vendor/autoload.php' ) ) {
  * @return object
  */
 function radiusDemoImporter() {
-	return RT\DemoImporter\RadiusDemoImporter::instance();
+	return RT\DemoImporter\Bootstrap::instance();
 }
 
 /**

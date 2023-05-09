@@ -29,5 +29,21 @@ class ActionHooks {
 	 * @return void
 	 */
 	public function register() {
+		add_action( 'init', [ $this, 'rewriteFlushCheck' ] );
+	}
+
+	/**
+	 * Check if the option to flush the rewrite rules has been set, and if so, flushes them and deletes the option.
+	 *
+	 * @return void
+	 */
+	public function rewriteFlushCheck() {
+		$theme  = str_replace( '-', '_', radiusDemoImporter()->activeTheme() );
+		$option = $theme . '_rtdi_importer_rewrite_flash';
+
+		if ( 'true' === get_option( $option ) ) {
+			flush_rewrite_rules();
+			delete_option( $option );
+		}
 	}
 }

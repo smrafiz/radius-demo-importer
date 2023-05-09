@@ -45,6 +45,13 @@ class Ajax {
 	public $excludeImages = '';
 
 	/**
+	 * Multiple Zip check.
+	 *
+	 * @var bool
+	 */
+	public $multiple = false;
+
+	/**
 	 * Uploads directory.
 	 *
 	 * @var string
@@ -57,10 +64,23 @@ class Ajax {
 	 * @return void
 	 */
 	public function register() {
-		$this->uploadsDir    = wp_get_upload_dir();
-		$this->demoSlug      = ! empty( $_POST['demo'] ) ? sanitize_text_field( wp_unslash( $_POST['demo'] ) ) : '';
+		// Theme config.
+		$this->config = radiusDemoImporter()->config;
+
+		// Uploads Directory.
+		$this->uploadsDir = wp_get_upload_dir();
+
+		// Check if multiple demo is configured.
+		$this->multiple = ! empty( $this->config['multipleZip'] ) ? $this->config['multipleZip'] : false;
+
+		// First demo slug.
+		$firstDemoSlug = array_key_first( $this->config['demoData'] );
+
+		// Demo slug.
+		$this->demoSlug = ! empty( $_POST['demo'] ) ? $this->multiple ? sanitize_text_field( wp_unslash( $_POST['demo'] ) ) : $firstDemoSlug : $firstDemoSlug;
+
+		// Check if images import is needed.
 		$this->excludeImages = ! empty( $_POST['excludeImages'] ) ? sanitize_text_field( wp_unslash( $_POST['excludeImages'] ) ) : '';
-		$this->config        = radiusDemoImporter()->config;
 	}
 
 	/**
@@ -107,7 +127,7 @@ class Ajax {
 	 * @return string
 	 */
 	public function demoUploadDir( $path = '' ) {
-		return $this->uploadsDir['basedir'] . '/demo-pack/' . $path;
+		return $this->uploadsDir['basedir'] . '/imported-demo-data/' . $path;
 	}
 
 	/**

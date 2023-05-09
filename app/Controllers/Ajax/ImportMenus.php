@@ -43,17 +43,17 @@ class ImportMenus extends Ajax {
 	public function import() {
 		Fns::verifyAjaxCall();
 
-		$menu = ! empty( $this->config[ $this->demoSlug ]['menuArray'] ) ? $this->config[ $this->demoSlug ]['menuArray'] : [];
+		$menus = $this->multiple ? Fns::keyExists( $this->config['demoData'][ $this->demoSlug ]['menus'], 'array' ) : Fns::keyExists( $this->config['menus'], 'array' );
 
-		if ( $menu ) {
-			$this->setMenu( $menu );
+		if ( $menus ) {
+			$this->setMenu( $menus );
 		}
 
 		// Response.
 		$this->response(
 			'rtdi_import_settings',
 			esc_html__( 'Importing settings', 'radius-demo-importer' ),
-			$menu ? esc_html__( 'Menus saved', 'radius-demo-importer' ) : esc_html__( 'No menus found', 'radius-demo-importer' )
+			$menus ? esc_html__( 'Menus saved', 'radius-demo-importer' ) : esc_html__( 'No menus found', 'radius-demo-importer' )
 		);
 	}
 

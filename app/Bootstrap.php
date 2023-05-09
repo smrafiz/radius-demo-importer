@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Main bootstrap class.
  */
-final class RadiusDemoImporter {
+final class Bootstrap {
 	/**
 	 * Singleton Trait.
 	 */
@@ -54,6 +54,7 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function registerServices() {
+
 		// Plugin setup.
 		$this->setup();
 
@@ -106,7 +107,7 @@ final class RadiusDemoImporter {
 	 * @return void
 	 */
 	public function register() {
-		do_action( 'rtdi/before/register' );
+		do_action( 'rtdi/importer/before/register' );
 
 		// Define the locale.
 		$this->setLocale();
@@ -114,7 +115,7 @@ final class RadiusDemoImporter {
 		// Init services.
 		Fns::initServices( $this->getServices() );
 
-		do_action( 'rtdi/after/register' );
+		do_action( 'rtdi/importer/after/register' );
 	}
 
 	/**
@@ -148,7 +149,7 @@ final class RadiusDemoImporter {
 		$services[] = Controllers\Hooks\ActionHooks::class;
 		$services[] = Controllers\Hooks\FilterHooks::class;
 
-		return apply_filters( 'rtdi/service/classes', $services );
+		return apply_filters( 'rtdi/importer/service/classes', $services );
 	}
 
 	/**
@@ -181,7 +182,9 @@ final class RadiusDemoImporter {
 	public function supportedThemes() {
 		return apply_filters(
 			'rtdi/importer/themes',
-			[]
+			[
+				! empty( $this->config['themeSlug'] ) ? esc_html( $this->config['themeSlug'] ) : '',
+			]
 		);
 	}
 

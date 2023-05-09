@@ -43,9 +43,7 @@ class DownloadFiles extends Ajax {
 	public function download() {
 		Fns::verifyAjaxCall();
 
-		$downloads = $this->downloadDemoFiles(
-			$this->config[ $this->demoSlug ]['externalUrl']
-		);
+		$downloads = $this->multiple ? $this->downloadDemoFiles( Fns::keyExists( $this->config['demoData'][ $this->demoSlug ]['demoZip'] ) ) : $this->downloadDemoFiles( Fns::keyExists( $this->config['demoZip'] ) );
 
 		// Response.
 		$this->response(
@@ -88,7 +86,7 @@ class DownloadFiles extends Ajax {
 		if ( ! $result ) {
 			return false;
 		} else {
-			$demo_pack = $this->demoUploadDir() . 'demo-pack.zip';
+			$demoData = $this->demoUploadDir() . 'demo-data.zip';
 
 			$response = wp_remote_get(
 				$external_url,
@@ -103,13 +101,13 @@ class DownloadFiles extends Ajax {
 
 			$file = wp_remote_retrieve_body( $response );
 
-			$wp_filesystem->put_contents( $demo_pack, $file );
+			$wp_filesystem->put_contents( $demoData, $file );
 
 			// Unzip file.
-			unzip_file( $demo_pack, $this->demoUploadDir() );
+			unzip_file( $demoData, $this->demoUploadDir() );
 
 			// Delete zip.
-			$wp_filesystem->delete( $demo_pack );
+			$wp_filesystem->delete( $demoData );
 
 			return true;
 		}

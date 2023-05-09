@@ -131,7 +131,7 @@ class Fns {
 				sprintf(
 					/* translators: %1$s - opening div and paragraph HTML tags, %2$s - closing div and paragraph HTML tags. */
 					__( '%1$sYour user role isn\'t high enough. You don\'t have permission to import demo data.%2$s', 'radius-demo-importer' ),
-					'<div class="notice  notice-error"><p>',
+					'<div class="notice notice-error"><p>',
 					'</p></div>'
 				)
 			);
@@ -175,5 +175,23 @@ class Fns {
 		if ( false !== $mods ) {
 			delete_option( "theme_mods_$themeSlug" );
 		}
+	}
+
+	/**
+	 * Check if array key exists;
+	 *
+	 * @param string $key Key to check.
+	 * @param string $dataType Data type.
+	 *
+	 * @return array|string
+	 */
+	public static function keyExists( $key, $dataType = 'string' ) {
+		if ( 'array' === $dataType ) {
+			$data = [];
+		} else {
+			$data = '';
+		}
+
+		return ! empty( $key ) ? $key : $data;
 	}
 }

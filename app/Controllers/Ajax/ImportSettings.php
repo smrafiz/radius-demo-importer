@@ -43,7 +43,7 @@ class ImportSettings extends Ajax {
 	public function import() {
 		Fns::verifyAjaxCall();
 
-		$settings = ! empty( $this->config[ $this->demoSlug ]['optionsArray'] ) ? $this->config[ $this->demoSlug ]['optionsArray'] : '';
+		$settings = $this->multiple ? Fns::keyExists( $this->config['demoData'][ $this->demoSlug ]['settingsJson'] ) : Fns::keyExists( $this->config['settingsJson'] );
 
 		$settingsExists = isset( $settings ) && is_array( $settings );
 
