@@ -181,8 +181,7 @@ class Scripts {
 			'ajaxurl'                     => esc_url( $this->ajaxurl ),
 			radiusDemoImporter()->nonceId => wp_create_nonce( radiusDemoImporter()->nonceText ),
 			'prepareImporting'            => esc_html__( 'Preparing to install demo data', 'radius-demo-importer' ),
-			'resetDatabase'               => esc_html__( 'Resetting database', 'radius-demo-importer' ),
-			'noResetDatabase'             => esc_html__( 'Database was not reset', 'radius-demo-importer' ),
+			'resetDatabase'               => esc_html__( 'Doing cleanups', 'radius-demo-importer' ),
 			'importError'                 => esc_html__( 'There was an error in importing demo. Please reload the page and try again.', 'radius-demo-importer' ),
 			'importSuccess'               => '<h2>' . esc_html__( 'All done. Have fun!', 'radius-demo-importer' ) . '</h2><p>' . esc_html__( 'Demo data has been successfully installed.', 'radius-demo-importer' ) . '</p><a class="button" target="_blank" href="' . esc_url( home_url( '/' ) ) . '">View your Website</a><a class="button" href="' . esc_url( admin_url( '/themes.php?page=rtdi-demo-importer' ) ) . '">' . esc_html__( 'Go Back', 'radius-demo-importer' ) . '</a>',
 		];

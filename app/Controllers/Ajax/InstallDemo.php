@@ -88,10 +88,18 @@ class InstallDemo extends Ajax {
 
 		// Import demo content from XML.
 		if ( class_exists( 'RTDI_WP_Import' ) ) {
-			$excludeImages  = ! ( 'true' === $excludeImages );
-			$homeSlug       = ! empty( $this->config[ $this->demoSlug ]['homeSlug'] ) ? $this->config[ $this->demoSlug ]['homeSlug'] : '';
-			$blogSlug       = ! empty( $this->config[ $this->demoSlug ]['blogSlug'] ) ? $this->config[ $this->demoSlug ]['blogSlug'] : '';
-			$elementKitSlug = ! empty( $this->config[ $this->demoSlug ]['element_kit_slug'] ) ? $this->config[ $this->demoSlug ]['element_kit_slug'] : '';
+			$excludeImages    = ! ( 'true' === $excludeImages );
+			$homeSlug         = $this->demoSlug;
+			$blogSlug         = '';
+			$elementorKitSlug = '';
+
+			if ( ! empty( $this->config['blogSlug'] ) || ! empty( $this->config['demoData'][ $this->demoSlug ]['blogSlug'] ) ) {
+				$blogSlug = $this->multiple ? $this->config['demoData'][ $this->demoSlug ]['blogSlug'] : $this->config['blogSlug'];
+			}
+
+			if ( ! empty( $this->config['elementorKitSlug'] ) || ! empty( $this->config['demoData'][ $this->demoSlug ]['elementorKitSlug'] ) ) {
+				$elementorKitSlug = $this->multiple ? $this->config['demoData'][ $this->demoSlug ]['elementorKitSlug'] : $this->config['elementorKitSlug'];
+			}
 
 			if ( file_exists( $xmlFilePath ) ) {
 				$wp_import                    = new RTDI_WP_Import();
@@ -108,7 +116,7 @@ class InstallDemo extends Ajax {
 					$this->unsetThumbnails();
 				}
 
-				// Set homepage as front page.
+				// Setting front page.
 				if ( $homeSlug ) {
 					$page = get_page_by_path( $homeSlug );
 
@@ -116,7 +124,7 @@ class InstallDemo extends Ajax {
 						update_option( 'show_on_front', 'page' );
 						update_option( 'page_on_front', $page->ID );
 					} else {
-						$page = get_page_by_title( 'Home' );
+						$page = Fns::getPageByTitle( 'Home' );
 
 						if ( $page ) {
 							update_option( 'show_on_front', 'page' );
@@ -125,6 +133,7 @@ class InstallDemo extends Ajax {
 					}
 				}
 
+				// Setting blog page.
 				if ( $blogSlug ) {
 					$blog = get_page_by_path( $blogSlug );
 
@@ -138,8 +147,10 @@ class InstallDemo extends Ajax {
 					update_option( 'show_on_front', 'posts' );
 				}
 
-				if ( $elementKitSlug ) {
-					$elementorKit = get_page_by_path( $elementKitSlug, OBJECT, 'elementor_library' );
+				// Settings Elementor Kit.
+				if ( $elementorKitSlug ) {
+					$elementorKit = get_page_by_path( $elementorKitSlug, OBJECT, 'elementor_library' );
+
 					if ( $elementorKit ) {
 						update_option( 'elementor_active_kit', $elementorKit->ID );
 					}

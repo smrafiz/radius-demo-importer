@@ -36,14 +36,14 @@ class Importer extends Controller {
 
 		// Services.
 		$this->classes[] = Ajax\Initialize::class;
-		$this->classes[] = Ajax\InstallPlugins::class;
-		$this->classes[] = Ajax\DownloadFiles::class;
-		$this->classes[] = Ajax\InstallDemo::class;
-		$this->classes[] = Ajax\CustomizerImport::class;
-		$this->classes[] = Ajax\ImportMenus::class;
-		$this->classes[] = Ajax\ImportSettings::class;
-		$this->classes[] = Ajax\ImportWidgets::class;
-		$this->classes[] = Ajax\Finalize::class;
+//		$this->classes[] = Ajax\InstallPlugins::class;
+//		$this->classes[] = Ajax\DownloadFiles::class;
+//		$this->classes[] = Ajax\InstallDemo::class;
+//		$this->classes[] = Ajax\CustomizerImport::class;
+//		$this->classes[] = Ajax\ImportMenus::class;
+//		$this->classes[] = Ajax\ImportSettings::class;
+//		$this->classes[] = Ajax\ImportWidgets::class;
+//		$this->classes[] = Ajax\Finalize::class;
 
 		return $this->classes;
 	}

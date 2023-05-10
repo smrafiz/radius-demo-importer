@@ -31,6 +31,8 @@ class Admin extends Controller {
 	 */
 	public function services() {
 		$this->classes[] = Admin\AdminMenu::class;
+		$this->classes[] = Admin\PluginRowMeta::class;
+		$this->classes[] = Admin\DeactivationNotice::class;
 
 		return $this->classes;
 	}

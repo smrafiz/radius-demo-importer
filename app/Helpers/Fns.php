@@ -80,7 +80,7 @@ class Fns {
 	 * @return string
 	 */
 	public static function pluginActivationStatus( $filePath ) {
-		$status      = 'install';
+		$status     = 'install';
 		$pluginPath = WP_PLUGIN_DIR . '/' . esc_attr( $filePath );
 
 		if ( file_exists( $pluginPath ) ) {
@@ -129,7 +129,7 @@ class Fns {
 		if ( ! current_user_can( 'import' ) ) {
 			wp_die(
 				sprintf(
-					/* translators: %1$s - opening div and paragraph HTML tags, %2$s - closing div and paragraph HTML tags. */
+				/* translators: %1$s - opening div and paragraph HTML tags, %2$s - closing div and paragraph HTML tags. */
 					__( '%1$sYour user role isn\'t high enough. You don\'t have permission to import demo data.%2$s', 'radius-demo-importer' ),
 					'<div class="notice notice-error"><p>',
 					'</p></div>'
@@ -178,6 +178,22 @@ class Fns {
 	}
 
 	/**
+	 * Deletes any registered navigation menus
+	 *
+	 * @return void
+	 */
+	public static function deleteNavMenus() {
+		$nav_menus = wp_get_nav_menus();
+
+		// Delete navigation menus.
+		if ( ! empty( $nav_menus ) ) {
+			foreach ( $nav_menus as $nav_menu ) {
+				wp_delete_nav_menu( $nav_menu->slug );
+			}
+		}
+	}
+
+	/**
 	 * Check if array key exists;
 	 *
 	 * @param string $key Key to check.
@@ -193,5 +209,50 @@ class Fns {
 		}
 
 		return ! empty( $key ) ? $key : $data;
+	}
+
+	/**
+	 * Get page by title.
+	 *
+	 * @param string $title Page name.
+	 * @param string $post_type Post type.
+	 *
+	 * @return \WP_Post|null
+	 */
+	public static function getPageByTitle( $title, $post_type = 'page' ) {
+		$query = new \WP_Query(
+			[
+				'post_type'              => esc_html( $post_type ),
+				'title'                  => esc_html( $title ),
+				'post_status'            => 'all',
+				'posts_per_page'         => 1,
+				'no_found_rows'          => true,
+				'ignore_sticky_posts'    => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'orderby'                => 'post_date ID',
+				'order'                  => 'ASC',
+			]
+		);
+
+		if ( ! empty( $query->post ) ) {
+			$pageByTitle = $query->post;
+		} else {
+			$pageByTitle = null;
+		}
+
+		return $pageByTitle;
+	}
+
+	/**
+	 * Hook Helper: do_action.
+	 *
+	 * @param string $hookName The action hook name.
+	 * @param mixed  ...$arg Additional arguments. Default empty.
+	 */
+	public static function doAction( $hookName, ...$arg ) {
+		if ( has_action( $hookName ) ) {
+			do_action( esc_html( $hookName ), ...$arg );
+		}
 	}
 }

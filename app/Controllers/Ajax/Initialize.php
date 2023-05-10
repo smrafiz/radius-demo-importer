@@ -43,21 +43,19 @@ class Initialize extends Ajax {
 	public function start() {
 		Fns::verifyAjaxCall();
 
-		$resetCheck = isset( $_POST['reset'] ) && 'true' === $_POST['reset'];
-
 		// Resetting database.
-		if ( $resetCheck ) {
+		if ( $this->reset ) {
 			$this->databaseReset();
 		}
 
-		// Init import actions.
-		$this->initImportActions();
+		// Importer Init Action hook.
+		Fns::doAction( 'rtdi/importer/init', $this );
 
 		// Response.
 		$this->response(
 			'rtdi_install_plugins',
 			esc_html__( 'Installing required plugins', 'radius-demo-importer' ),
-			( $resetCheck ) ? esc_html__( 'Database reset completed', 'radius-demo-importer' ) : ''
+			( $this->reset ) ? esc_html__( 'Database reset completed', 'radius-demo-importer' ) : esc_html__( 'Minor cleanups completed', 'radius-demo-importer' )
 		);
 	}
 

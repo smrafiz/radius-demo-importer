@@ -86,7 +86,7 @@ class DownloadFiles extends Ajax {
 		if ( ! $result ) {
 			return false;
 		} else {
-			$demoData = $this->demoUploadDir() . 'demo-data.zip';
+			$demoData = $this->demoUploadDir() . 'imported-demo-data.zip';
 
 			$response = wp_remote_get(
 				$external_url,

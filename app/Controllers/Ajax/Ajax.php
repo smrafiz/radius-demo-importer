@@ -59,6 +59,13 @@ class Ajax {
 	public $uploadsDir;
 
 	/**
+	 * Database reset.
+	 *
+	 * @var bool
+	 */
+	public $reset;
+
+	/**
 	 * Class Init.
 	 *
 	 * @return void
@@ -81,6 +88,9 @@ class Ajax {
 
 		// Check if images import is needed.
 		$this->excludeImages = ! empty( $_POST['excludeImages'] ) ? sanitize_text_field( wp_unslash( $_POST['excludeImages'] ) ) : '';
+
+		// Check if database reset needed.
+		$this->reset = isset( $_POST['reset'] ) && 'true' === $_POST['reset'];
 	}
 
 	/**
@@ -135,7 +145,7 @@ class Ajax {
 	 *
 	 * @return void
 	 */
-	public function initImportActions() {
+	public function initImportActions( $name, ...$args ) {
 		do_action( 'rtdi/importer/init' );
 	}
 
