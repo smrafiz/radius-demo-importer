@@ -118,7 +118,7 @@ class InstallPlugins extends Ajax {
 			$filePath = ! empty( $plugin['filePath'] ) ? $plugin['filePath'] : '';
 			$location = ! empty( $plugin['location'] ) ? $plugin['location'] : '';
 
-			if ( 'WordPress' === $source ) {
+			if ( strtolower( 'WordPress' ) === strtolower( $source ) ) {
 				$this->installOrgPlugin( $filePath, $pluginSlug );
 			} else {
 				$this->installCustomPlugin( $filePath, $location );

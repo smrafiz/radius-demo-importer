@@ -44,7 +44,7 @@ class Finalize extends Ajax {
 		Fns::verifyAjaxCall();
 
 		// Finalize import actions.
-		$this->afterImportActions();
+		Fns::doAction( 'rtdi/importer/after_import', $this );
 
 		$this->response(
 			'',

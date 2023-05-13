@@ -89,17 +89,6 @@ class InstallDemo extends Ajax {
 		// Import demo content from XML.
 		if ( class_exists( 'RTDI_WP_Import' ) ) {
 			$excludeImages    = ! ( 'true' === $excludeImages );
-			$homeSlug         = $this->demoSlug;
-			$blogSlug         = '';
-			$elementorKitSlug = '';
-
-			if ( ! empty( $this->config['blogSlug'] ) || ! empty( $this->config['demoData'][ $this->demoSlug ]['blogSlug'] ) ) {
-				$blogSlug = $this->multiple ? $this->config['demoData'][ $this->demoSlug ]['blogSlug'] : $this->config['blogSlug'];
-			}
-
-			if ( ! empty( $this->config['elementorKitSlug'] ) || ! empty( $this->config['demoData'][ $this->demoSlug ]['elementorKitSlug'] ) ) {
-				$elementorKitSlug = $this->multiple ? $this->config['demoData'][ $this->demoSlug ]['elementorKitSlug'] : $this->config['elementorKitSlug'];
-			}
 
 			if ( file_exists( $xmlFilePath ) ) {
 				$wp_import                    = new RTDI_WP_Import();
@@ -114,46 +103,6 @@ class InstallDemo extends Ajax {
 
 				if ( ! $excludeImages ) {
 					$this->unsetThumbnails();
-				}
-
-				// Setting front page.
-				if ( $homeSlug ) {
-					$page = get_page_by_path( $homeSlug );
-
-					if ( $page ) {
-						update_option( 'show_on_front', 'page' );
-						update_option( 'page_on_front', $page->ID );
-					} else {
-						$page = Fns::getPageByTitle( 'Home' );
-
-						if ( $page ) {
-							update_option( 'show_on_front', 'page' );
-							update_option( 'page_on_front', $page->ID );
-						}
-					}
-				}
-
-				// Setting blog page.
-				if ( $blogSlug ) {
-					$blog = get_page_by_path( $blogSlug );
-
-					if ( $blog ) {
-						update_option( 'show_on_front', 'page' );
-						update_option( 'page_for_posts', $blog->ID );
-					}
-				}
-
-				if ( ! $homeSlug && ! $blogSlug ) {
-					update_option( 'show_on_front', 'posts' );
-				}
-
-				// Settings Elementor Kit.
-				if ( $elementorKitSlug ) {
-					$elementorKit = get_page_by_path( $elementorKitSlug, OBJECT, 'elementor_library' );
-
-					if ( $elementorKit ) {
-						update_option( 'elementor_active_kit', $elementorKit->ID );
-					}
 				}
 			}
 		}

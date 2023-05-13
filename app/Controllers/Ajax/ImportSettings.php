@@ -62,10 +62,14 @@ class ImportSettings extends Ajax {
 			}
 		}
 
+		$forms = $this->multiple ? Fns::keyExists( $this->config['demoData'][ $this->demoSlug ]['fluentFormsJson'] ) : Fns::keyExists( $this->config['fluentFormsJson'] );
+
+		$formsExists = isset( $forms ) || is_plugin_active( 'fluentform/fluentform.php' );
+
 		$this->response(
-			'rtdi_import_widgets',
-			esc_html__( 'Importing widgets', 'radius-demo-importer' ),
-			$settingsExists ? esc_html__( 'Theme settings imported', 'radius-demo-importer' ) : esc_html__( 'No theme settings found', 'radius-demo-importer' )
+			$formsExists ? 'rtdi_import_fluent_forms' : 'rtdi_import_widgets',
+			$formsExists ? esc_html__( 'Importing Fluent forms', 'radius-demo-importer' ) : esc_html__( 'Importing widgets', 'radius-demo-importer' ),
+			$settingsExists ? esc_html__( 'Theme settings imported', 'radius-demo-importer' ) : esc_html__( 'Settings import not needed', 'radius-demo-importer' )
 		);
 	}
 }

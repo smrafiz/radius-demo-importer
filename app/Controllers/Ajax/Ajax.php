@@ -8,6 +8,9 @@
 namespace RT\DemoImporter\Controllers\Ajax;
 
 // Do not allow directly accessing this file.
+use RT\DemoImporter\Controllers\Importer\ImportActions;
+use RT\DemoImporter\Helpers\Fns;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'This script cannot be accessed directly.' );
 }
@@ -91,6 +94,23 @@ class Ajax {
 
 		// Check if database reset needed.
 		$this->reset = isset( $_POST['reset'] ) && 'true' === $_POST['reset'];
+
+		$form = $this->multiple ? Fns::keyExists( $this->config['demoData'][ $this->demoSlug ]['fluentFormsJson'] ) : Fns::keyExists( $this->config['fluentFormsJson'] );
+//
+//		$formsExists = isset( $forms ) || is_plugin_active( 'fluentform/fluentform.php' );
+//
+//		echo '<pre>';
+//		print_r( $formsExists );
+//		echo '</pre>';
+
+//		$formFile   = $this->demoUploadDir( $this->demoSlug ) . '/' . $form . '.json';
+//		$fileExists = file_exists( $formFile );
+//
+//		$data = file_get_contents( $formFile );
+//
+//		echo '<pre>';
+//		print_r( $data );
+//		echo '</pre>';
 	}
 
 	/**

@@ -49,7 +49,7 @@ class Initialize extends Ajax {
 		}
 
 		// Importer Init Action hook.
-		Fns::doAction( 'rtdi/importer/init', $this );
+		Fns::doAction( 'rtdi/importer/before_import', $this );
 
 		// Response.
 		$this->response(
